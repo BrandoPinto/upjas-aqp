@@ -58,6 +58,7 @@ export const otorgarPuntos = async ({
   const permisosValidos = {
     maestro:  ["asistencia", "invitacion"],
     lider:    ["actividadPequena", "actividadGrande", "plus"],
+    bienvenida: ["actividadPequena", "actividadGrande"],
     admin:    ["asistencia", "actividadPequena", "actividadGrande", "invitacion", "plus"],
   };
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { logoutUser } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
+import PortalSwitcher from "../../components/shared/PortalSwitcher";
 import MiPase from "./tabs/MiPase";
 import Clases from "./tabs/Clases";
 import Eventos from "./tabs/Eventos";
@@ -68,16 +69,19 @@ export default function HomePage() {
             </h1>
             <p className="text-sm text-[rgba(240,244,248,0.55)]">{profile?.codigoJAS}</p>
           </div>
-          <button
-            onClick={() => setActiveTab("historial")}
-            className="flex items-center gap-1.5 rounded-2xl bg-white/15 px-3 py-2 backdrop-blur-sm transition hover:bg-white/25 active:scale-95"
-          >
-            <span className="text-base">⭐</span>
-            <span className="text-sm font-bold text-white">{profile?.puntos ?? 0}</span>
-            <svg className="h-3.5 w-3.5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <PortalSwitcher />
+            <button
+              onClick={() => setActiveTab("historial")}
+              className="flex items-center gap-1.5 rounded-2xl bg-white/15 px-3 py-2 backdrop-blur-sm transition hover:bg-white/25 active:scale-95"
+            >
+              <span className="text-base">⭐</span>
+              <span className="text-sm font-bold text-white">{profile?.puntos ?? 0}</span>
+              <svg className="h-3.5 w-3.5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 

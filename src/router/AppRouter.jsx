@@ -5,6 +5,7 @@ import LoginPage from "../pages/auth/LoginPage";
 import HomePage from "../pages/user/HomePage";
 import MaestroDashboard from "../pages/maestro/MaestroDashboard";
 import LiderDashboard from "../pages/lider/LiderDashboard";
+import BienvenidaDashboard from "../pages/bienvenida/BienvenidaDashboard";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import LoadingScreen from "../components/shared/LoadingScreen";
 
@@ -49,6 +50,14 @@ export default function AppRouter() {
           element={
             <PrivateRoute>
               <RoleRoute role="maestro"><MaestroDashboard /></RoleRoute>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/bienvenida"
+          element={
+            <PrivateRoute>
+              <RoleRoute role="bienvenida"><BienvenidaDashboard /></RoleRoute>
             </PrivateRoute>
           }
         />

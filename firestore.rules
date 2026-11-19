@@ -17,7 +17,7 @@ service cloud.firestore {
     }
 
     function canAwardPoints() {
-      return isLoggedIn() && myRoles().hasAny(['admin', 'maestro', 'lider']);
+      return isLoggedIn() && myRoles().hasAny(['admin', 'maestro', 'lider', 'bienvenida']);
     }
 
     // ── Usuarios ─────────────────────────────────────────────────────────────

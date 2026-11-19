@@ -19,6 +19,7 @@ const TIPO_META = {
 const ROL_LABEL = {
   maestro: "Maestro",
   lider:   "Líder",
+  bienvenida: "Bienvenida",
   admin:   "Admin",
 };
 
