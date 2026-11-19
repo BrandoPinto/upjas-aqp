@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+:root {
+  /* Brand colors */
+  --color-primary:       #2d69a3;
+  --color-primary-light: #54aeb6;
+  --color-primary-dark:  #1a4270;
+  --color-accent:        #df7e30;
+  --color-pink:          #d42d7d;
+  --color-coral:         #d74468;
+  --color-yellow:        #fcef53;
+
+  /* Backgrounds */
+  --bg-base:     #0d1b2e;
+  --bg-surface:  #132338;
+  --bg-elevated: #1a2f47;
+  --bg-glass:    rgba(255, 255, 255, 0.06);
+
+  /* Text */
+  --text-primary:   #f0f4f8;
+  --text-secondary: rgba(240, 244, 248, 0.55);
+  --text-muted:     rgba(240, 244, 248, 0.30);
+
+  /* Borders */
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-focus:   rgba(84, 174, 182, 0.45);
+  --border-accent:  rgba(223, 126, 48, 0.30);
+}
+
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}

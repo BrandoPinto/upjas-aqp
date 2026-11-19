@@ -1,0 +1,12 @@
+{
+  "hosting": {
+    "public": "redirect-placeholder",
+    "redirects": [
+      {
+        "source": "/**",
+        "destination": "https://irappp.web.app",
+        "type": 301
+      }
+    ]
+  }
+}
