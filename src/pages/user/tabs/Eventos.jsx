@@ -4,6 +4,7 @@ import { db } from "../../../firebase/firebaseConfig";
 import { mostrarToast, mensajeDeError } from "../../../services/toast";
 import { hoyLocalIso } from "../../../utils/fechas";
 import { idAsistencia } from "../../../utils/asistencias";
+import { optimizarImagen } from "../../../utils/imagenes";
 import {
   collection, query, getDocs, doc,
   setDoc, serverTimestamp, orderBy, where,
@@ -108,7 +109,7 @@ function ModalAsistencia({ evento, onConfirmar, onCerrar, confirmando }) {
             {/* Imagen */}
             {evento.imagen && (
               <div className="mx-5 mb-3 rounded-2xl overflow-hidden h-36 flex-shrink-0">
-                <img src={evento.imagen} alt={evento.titulo}
+                <img src={optimizarImagen(evento.imagen, 800)} alt={evento.titulo} decoding="async"
                   className="w-full h-full object-cover"
                   onError={e => { e.target.parentElement.style.display = "none"; }} />
               </div>
@@ -274,7 +275,7 @@ function ModalEvento({ evento, confirmado, confirmando, onConfirmar, onCerrar })
         {evento.imagen && (
           <div className="flex-shrink-0 w-full overflow-hidden sm:rounded-t-3xl rounded-t-3xl bg-white"
             style={{ maxHeight: 200 }}>
-            <img src={evento.imagen} alt={evento.titulo}
+            <img src={optimizarImagen(evento.imagen, 800)} alt={evento.titulo} decoding="async"
               className="w-full h-full object-contain"
               style={{ maxHeight: 200 }}
               onError={e => { e.target.parentElement.style.display = "none"; }} />
@@ -387,7 +388,8 @@ function EventoCard({ evento, confirmado, onVerMas, compacto = false }) {
       {evento.imagen && imgOk ? (
         <div className="relative w-full overflow-hidden" style={{ height: compacto ? 100 : 160 }}>
           <img
-            src={evento.imagen} alt={evento.titulo}
+            src={optimizarImagen(evento.imagen, compacto ? 500 : 800)} alt={evento.titulo}
+            loading="lazy" decoding="async"
             className="w-full h-full object-cover"
             style={{ filter: pasado ? "grayscale(0.35)" : "none" }}
             onError={() => setImgOk(false)}

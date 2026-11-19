@@ -1,14 +1,18 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { portalesDisponibles, guardarUltimoPortal, rutaInicial } from "../constants/portales";
 
 import LoginPage from "../pages/auth/LoginPage";
 import HomePage from "../pages/user/HomePage";
-import MaestroDashboard from "../pages/maestro/MaestroDashboard";
-import LiderDashboard from "../pages/lider/LiderDashboard";import AdminDashboard from "../pages/admin/AdminDashboard";
 import LoadingScreen from "../components/shared/LoadingScreen";
 import ConsentGate from "../components/shared/ConsentGate";
+
+// Los portales de maestro, líder y admin (y el lector de QR que usan) se descargan solo cuando
+// alguien entra a ellos. Así un usuario normal no baja ese código al abrir la app.
+const MaestroDashboard = lazy(() => import("../pages/maestro/MaestroDashboard"));
+const LiderDashboard   = lazy(() => import("../pages/lider/LiderDashboard"));
+const AdminDashboard   = lazy(() => import("../pages/admin/AdminDashboard"));
 
 // Solo para no autenticados — si ya hay sesión va al último portal usado (o a "/")
 function PublicRoute({ children }) {
@@ -51,41 +55,45 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <RecordarPortal />
-      <Routes>
-        <Route
-          path="/login"
-          element={<PublicRoute><LoginPage /></PublicRoute>}
-        />
-        <Route
-          path="/"
-          element={<PrivateRoute><HomePage /></PrivateRoute>}
-        />
-        <Route
-          path="/maestro"
-          element={
-            <PrivateRoute>
-              <RoleRoute role="maestro"><MaestroDashboard /></RoleRoute>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/lider"
-          element={
-            <PrivateRoute>
-              <RoleRoute role="lider"><LiderDashboard /></RoleRoute>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <PrivateRoute>
-              <RoleRoute role="admin"><AdminDashboard /></RoleRoute>
-            </PrivateRoute>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      {/* Mientras se descarga un portal se muestra la pantalla de carga.
+          Si la descarga falla (sin internet, o app actualizada), el ErrorBoundary general ofrece "Recargar". */}
+      <Suspense fallback={<LoadingScreen />}>
+        <Routes>
+          <Route
+            path="/login"
+            element={<PublicRoute><LoginPage /></PublicRoute>}
+          />
+          <Route
+            path="/"
+            element={<PrivateRoute><HomePage /></PrivateRoute>}
+          />
+          <Route
+            path="/maestro"
+            element={
+              <PrivateRoute>
+                <RoleRoute role="maestro"><MaestroDashboard /></RoleRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/lider"
+            element={
+              <PrivateRoute>
+                <RoleRoute role="lider"><LiderDashboard /></RoleRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <RoleRoute role="admin"><AdminDashboard /></RoleRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

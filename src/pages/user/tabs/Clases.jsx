@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { getClases } from "../../../services/adminService";
 import { useAuth } from "../../../context/AuthContext";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, collection, query, where, getDocs, serverTimestamp } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
 import { mostrarToast, mensajeDeError } from "../../../services/toast";
+import { optimizarImagen } from "../../../utils/imagenes";
 
 // Caché de módulo: persiste mientras la SPA no recarga
 let _clasesCache = null;
@@ -105,7 +106,8 @@ function ClaseCard({ clase, inscrito, onInscribir }) {
         <div className="flex-shrink-0 w-[100px] h-[100px] overflow-hidden" style={{borderRadius:"20px 0 0 20px",margin:0}}>
           {clase.imagen && imgOk ? (
             <img
-              src={clase.imagen} alt={clase.titulo}
+              src={optimizarImagen(clase.imagen, 800)} alt={clase.titulo}
+              loading="lazy" decoding="async"
               className="w-full h-full object-cover"
               style={{ filter: "brightness(0.97) saturate(1.1)" }}
               onError={() => setImgOk(false)}
@@ -216,7 +218,7 @@ function ModalPolitica({ clase, onConfirmar, onCerrar, inscribiendo }) {
             {/* Imagen */}
             {clase.imagen && (
               <div className="mx-5 mb-3 rounded-2xl overflow-hidden h-36 flex-shrink-0">
-                <img src={clase.imagen} alt={clase.titulo} className="w-full h-full object-cover"
+                <img src={optimizarImagen(clase.imagen, 800)} alt={clase.titulo} decoding="async" className="w-full h-full object-cover"
                   onError={(e) => { e.target.parentElement.style.display="none"; }} />
               </div>
             )}
@@ -392,13 +394,16 @@ export default function Clases() {
       setClases(_clasesCache);
 
       if (uid && _inscripcionesCache[uid] === undefined) {
-        const checks = await Promise.all(
-          _clasesCache.map((c) =>
-            getDoc(doc(db, "inscripciones", `${uid}_${c.id}`))
-              .then((snap) => [c.id, snap.exists()])
-          )
+        // Una sola consulta con las inscripciones de la persona (antes: una lectura por cada clase)
+        const snap = await getDocs(
+          query(collection(db, "inscripciones"), where("uid", "==", uid))
         );
-        _inscripcionesCache[uid] = Object.fromEntries(checks);
+        const mapa = Object.fromEntries(_clasesCache.map((c) => [c.id, false]));
+        snap.docs.forEach((d) => {
+          const claseId = d.data().claseId;
+          if (claseId) mapa[claseId] = true;
+        });
+        _inscripcionesCache[uid] = mapa;
       }
       if (uid) setInscripciones(_inscripcionesCache[uid] ?? {});
       setLoading(false);

@@ -103,10 +103,7 @@ export default function PanelLogin({
       {subView === "main" && (
         <div className="flex w-full max-w-[320px] flex-col items-center pb-2">
           <div className="mb-5"><img src={logoUpjas} alt="UPJAS" className="h-28 w-auto" /></div>
-          <h1
-            className="mb-0.5 text-2xl font-bold text-[#f0f4f8]"
-            style={{ fontFamily: "Georgia, serif" }}
-          >
+          <h1 className="mb-0.5 font-marca text-2xl font-extrabold tracking-tight text-[#f0f4f8]">
             UpJAS AQP
           </h1>
           <p className="mb-6 text-sm text-[rgba(240,244,248,0.55)]">Inicie Sesión</p>

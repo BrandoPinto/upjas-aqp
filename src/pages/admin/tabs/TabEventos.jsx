@@ -5,6 +5,7 @@ import {
 } from "../../../services/adminService";
 import { subirImagen } from "../../../services/cloudinaryService";
 import { mostrarToast } from "../../../services/toast";
+import { optimizarImagen } from "../../../utils/imagenes";
 import { getConfigPuntos } from "../../../services/puntosService";
 import ModalAsistenciaEvento from "../../../components/shared/ModalAsistenciaEvento";
 
@@ -202,7 +203,8 @@ export default function TabEventos({ theme = RED_THEME, canManageCategorias = tr
               <div className={vencido ? "opacity-50" : ""}>
                 {ev.imagen && (
                   <img
-                    src={ev.imagen} alt={ev.titulo}
+                    src={optimizarImagen(ev.imagen, 600)} alt={ev.titulo}
+                    loading="lazy" decoding="async"
                     className="h-32 w-full object-cover"
                     onError={(e) => { e.target.style.display = "none"; }}
                   />

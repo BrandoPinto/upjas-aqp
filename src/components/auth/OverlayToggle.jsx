@@ -24,7 +24,7 @@ export default function OverlayToggle({ isRegister, onSwitch }) {
         >
           <Decoraciones />
           <div className="relative z-10 flex flex-col items-center gap-2">
-            <h2 className="text-xl font-bold" style={{ fontFamily: "Georgia,serif" }}>¡Hola!</h2>
+            <h2 className="font-marca text-xl font-bold tracking-tight">¡Hola!</h2>
             <p className="text-sm text-white/80">
               {isRegister ? "¿Ya tiene cuenta?" : "¿No tiene cuenta?"}
             </p>
@@ -69,7 +69,7 @@ export default function OverlayToggle({ isRegister, onSwitch }) {
                 pointerEvents:  isRegister ? "auto" : "none",
               }}
             >
-              <h2 className="text-2xl font-bold" style={{ fontFamily: "Georgia,serif" }}>¡Hola!</h2>
+              <h2 className="font-marca text-2xl font-bold tracking-tight">¡Hola!</h2>
               <p className="text-white/85">¿Ya tiene cuenta?</p>
               <button
                 type="button"
@@ -90,7 +90,7 @@ export default function OverlayToggle({ isRegister, onSwitch }) {
                 pointerEvents:  isRegister ? "none" : "auto",
               }}
             >
-              <h2 className="text-2xl font-bold" style={{ fontFamily: "Georgia,serif" }}>¡Hola!</h2>
+              <h2 className="font-marca text-2xl font-bold tracking-tight">¡Hola!</h2>
               <p className="text-white/85">¿No tiene cuenta?</p>
               <button
                 type="button"

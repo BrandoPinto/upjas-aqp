@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { getClases, crearClase, actualizarClase, eliminarClase, getMaestros } from "../../../services/adminService";
 import { subirImagen } from "../../../services/cloudinaryService";
 import { mostrarToast } from "../../../services/toast";
+import { optimizarImagen } from "../../../utils/imagenes";
 
 const MODALIDADES = ["Presencial", "Virtual", "Híbrida"];
 const DIAS        = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -144,7 +145,8 @@ export default function TabClases({ theme = RED_THEME }) {
           <div key={c.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             {c.imagen && (
               <img
-                src={c.imagen} alt={c.titulo}
+                src={optimizarImagen(c.imagen, 600)} alt={c.titulo}
+                loading="lazy" decoding="async"
                 className="h-32 w-full object-cover"
                 onError={(e) => { e.target.style.display = "none"; }}
               />

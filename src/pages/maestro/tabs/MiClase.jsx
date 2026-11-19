@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { db } from "../../../firebase/firebaseConfig";
+import { optimizarImagen } from "../../../utils/imagenes";
 import {
   collection, query, where, getDocs, doc, getDoc
 } from "firebase/firestore";
@@ -394,7 +395,8 @@ function ClaseCard({ clase, alumnos, loadingAlumnos, onDarPunto }) {
       >
         <div className="flex-shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-slate-100">
           {clase.imagen ? (
-            <img src={clase.imagen} alt={clase.titulo}
+            <img src={optimizarImagen(clase.imagen, 600)} alt={clase.titulo}
+              loading="lazy" decoding="async"
               className="w-full h-full object-cover"
               onError={(e) => { e.target.style.display = "none"; }} />
           ) : (

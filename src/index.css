@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Tipografía de marca: clase `font-marca` (título del login y "¡Hola!").
+   Si Montserrat no llega, se usa una sans del sistema. */
+@theme {
+  --font-marca: "Montserrat", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
 :root {
   /* Brand colors */
   --color-primary:       #2d69a3;
