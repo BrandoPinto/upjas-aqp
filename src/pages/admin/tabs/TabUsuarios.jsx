@@ -28,8 +28,6 @@ export default function TabUsuarios() {
   const { user } = useAuth();
   const [usuarios, setUsuarios]           = useState([]);
   const [pagina, setPagina]               = useState(0);
-  // cursores[i] = startAfter doc para cargar la página i
-  const [cursores, setCursores]           = useState([null]);
   const [hayMas, setHayMas]               = useState(false);
   const [cargandoPag, setCargandoPag]     = useState(false);
   const [allUsersCache, setAllUsersCache] = useState(null);
@@ -52,6 +50,7 @@ export default function TabUsuarios() {
   const [eliminandoEntrada, setEliminandoEntrada] = useState(null);
   const allUsersFetched = useRef(false);
   const debounceRef     = useRef(null);
+  // cursoresRef.current[i] = startAfter doc para cargar la página i
   const cursoresRef     = useRef([null]);
 
   const cargarPagina = async (numPag) => {
@@ -64,7 +63,6 @@ export default function TabUsuarios() {
     if (resultado.hayMas && !cursoresRef.current[numPag + 1]) {
       cursoresRef.current = [...cursoresRef.current];
       cursoresRef.current[numPag + 1] = resultado.cursor;
-      setCursores([...cursoresRef.current]);
     }
     setCargandoPag(false);
   };
@@ -81,7 +79,6 @@ export default function TabUsuarios() {
       }
     };
     cargar();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Carga lazy del listado completo la primera vez que se activa la búsqueda

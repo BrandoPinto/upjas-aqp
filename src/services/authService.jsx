@@ -5,7 +5,7 @@ import {
   signOut,
 } from "firebase/auth";
 import {
-  doc, setDoc, getDoc, updateDoc, deleteDoc,
+  doc, getDoc, updateDoc,
   runTransaction, serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "../firebase/firebaseConfig";
@@ -23,6 +23,38 @@ const AUTH_ERRORS = {
 
 export const getAuthError = (code) =>
   AUTH_ERRORS[code] || "Ocurrió un error. Intenta de nuevo.";
+
+// ── PISTA DEL CORREO ───────────────────────────────────────────
+// "brandopinto@gmail.com" → "br***o@gmail.com". Solo se guarda esta versión
+// oculta junto al celular (phoneIndex) para poder ayudar a quien olvidó con qué
+// correo se registró, sin exponer el correo completo. Si el nombre es corto
+// (3 letras o menos) solo se muestra la primera, para no revelarlo casi entero.
+export const ocultarCorreo = (email) => {
+  const [local, dominio] = String(email ?? "").split("@");
+  if (!local || !dominio) return "";
+  if (local.length <= 3) return `${local[0]}***@${dominio}`;
+  return `${local.slice(0, 2)}***${local.slice(-1)}@${dominio}`;
+};
+
+// Devuelve la pista del correo asociada a un celular, o null si no hay cuenta
+export const getPistaCorreo = async (phone) => {
+  if (!/^\d{9}$/.test(phone)) throw { code: "phone/invalid" };
+  const snap = await getDoc(doc(db, "phoneIndex", phone));
+  return snap.exists() ? (snap.data().emailHint ?? "") : null;
+};
+
+// ── ÚLTIMO CORREO USADO (solo en este dispositivo) ─────────────
+const CLAVE_ULTIMO_CORREO = "upjas:ultimoCorreo";
+
+export const getUltimoCorreo = () => {
+  try { return localStorage.getItem(CLAVE_ULTIMO_CORREO) ?? ""; }
+  catch { return ""; }
+};
+
+export const guardarUltimoCorreo = (email) => {
+  try { localStorage.setItem(CLAVE_ULTIMO_CORREO, email); }
+  catch { /* sin acceso a localStorage: simplemente no se recuerda */ }
+};
 
 // ── REGISTRO ──────────────────────────────────────────────────
 export const registerUser = async ({
@@ -60,7 +92,7 @@ export const registerUser = async ({
 
       // Escribir todo atómicamente
       tx.set(contadorRef, { ultimo: numero });
-      tx.set(phoneRef, { uid: user.uid });
+      tx.set(phoneRef, { uid: user.uid, emailHint: ocultarCorreo(email) });
       tx.set(doc(db, "users", user.uid), {
         uid: user.uid,
         email,
@@ -87,6 +119,20 @@ export const registerUser = async ({
   return user;
 };
 
+// Cuentas creadas antes de esta función no tienen la pista en phoneIndex:
+// se completa sola al iniciar sesión. Nunca bloquea el login si falla.
+const asegurarPistaCorreo = async ({ uid, phone, email }) => {
+  try {
+    if (!phone || !email) return;
+    const ref  = doc(db, "phoneIndex", phone);
+    const snap = await getDoc(ref);
+    const hint = ocultarCorreo(email);
+    if (snap.exists() && snap.data().uid === uid && snap.data().emailHint !== hint) {
+      await updateDoc(ref, { emailHint: hint });
+    }
+  } catch { /* la pista es opcional */ }
+};
+
 // ── LOGIN ──────────────────────────────────────────────────────
 export const loginUser = async (email, password) => {
   const { user } = await signInWithEmailAndPassword(auth, email, password);
@@ -95,7 +141,10 @@ export const loginUser = async (email, password) => {
     await signOut(auth);
     throw { code: "auth/user-not-found" };
   }
-  return { user, profile: snap.data() };
+  const profile = snap.data();
+  guardarUltimoCorreo(email);
+  await asegurarPistaCorreo(profile);
+  return { user, profile };
 };
 
 // ── RECUPERAR CONTRASEÑA ───────────────────────────────────────
@@ -132,7 +181,10 @@ export const updateUserProfile = async (uid, { name, lastName, phone, birthDate,
       }
       // Liberar número anterior y reclamar el nuevo
       if (oldPhone) tx.delete(doc(db, "phoneIndex", oldPhone));
-      tx.set(doc(db, "phoneIndex", phone), { uid });
+      tx.set(doc(db, "phoneIndex", phone), {
+        uid,
+        emailHint: ocultarCorreo(userSnap.data()?.email),
+      });
     }
 
     const data = { name, lastName, phone, birthDate, gender, relation };

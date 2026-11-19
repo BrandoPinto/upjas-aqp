@@ -7,8 +7,11 @@ const PAGE_SIZE = 10;
 function SeccionRol({ activos, noActivos, filtro, setFiltro, rol, colorActivo, colorAsignar, onAsignar, onQuitar, accion }) {
   const [pagina, setPagina] = useState(0);
 
-  // Resetear página al cambiar filtro
-  useEffect(() => { setPagina(0); }, [filtro]);
+  // Al cambiar el filtro se vuelve a la primera página
+  const cambiarFiltro = (valor) => {
+    setFiltro(valor);
+    setPagina(0);
+  };
 
   const inicio      = pagina * PAGE_SIZE;
   const paginados   = noActivos.slice(inicio, inicio + PAGE_SIZE);
@@ -69,11 +72,11 @@ function SeccionRol({ activos, noActivos, filtro, setFiltro, rol, colorActivo, c
             type="text"
             placeholder="Buscar usuario..."
             value={filtro}
-            onChange={(e) => setFiltro(e.target.value)}
+            onChange={(e) => cambiarFiltro(e.target.value)}
             className="flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
           />
           {filtro.length > 0 && (
-            <button onClick={() => setFiltro("")} className="text-slate-400 hover:text-slate-600">
+            <button onClick={() => cambiarFiltro("")} className="text-slate-400 hover:text-slate-600">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -137,6 +140,23 @@ function SeccionRol({ activos, noActivos, filtro, setFiltro, rol, colorActivo, c
         )}
       </div>
     </div>
+  );
+}
+
+// Fuera del componente: si se declarara dentro, React la recrearía en cada render
+function TabBtn({ id, label, count, color, activa, onSelect }) {
+  return (
+    <button
+      onClick={() => onSelect(id)}
+      className="flex-1 rounded-2xl py-3 text-sm font-bold transition"
+      style={{
+        background: activa ? color : "transparent",
+        color: activa ? "#fff" : "#94a3b8",
+        border: activa ? "none" : "1px solid #e2e8f0",
+      }}
+    >
+      {label} ({count})
+    </button>
   );
 }
 
@@ -219,27 +239,14 @@ export default function TabMaestros() {
     </div>
   );
 
-  const TabBtn = ({ id, label, count, color }) => (
-    <button
-      onClick={() => setTabActiva(id)}
-      className="flex-1 rounded-2xl py-3 text-sm font-bold transition"
-      style={{
-        background: tabActiva === id ? color : "transparent",
-        color: tabActiva === id ? "#fff" : "#94a3b8",
-        border: tabActiva === id ? "none" : "1px solid #e2e8f0",
-      }}
-    >
-      {label} ({count})
-    </button>
-  );
-
   return (
     <div className="flex flex-col gap-4 px-4 pt-6">
 
       {/* Tabs */}
       <div className="flex gap-2">
-        <TabBtn id="maestros" label="Maestros" count={maestros.length} color="#065f46" />
-        <TabBtn id="lideres"  label="Líderes"  count={lideres.length}  color="#4c1d95" />        <TabBtn id="admins"   label="Admins"   count={admins.length}   color="#7f1d1d" />
+        <TabBtn id="maestros" label="Maestros" count={maestros.length} color="#065f46" activa={tabActiva === "maestros"} onSelect={setTabActiva} />
+        <TabBtn id="lideres"  label="Líderes"  count={lideres.length}  color="#4c1d95" activa={tabActiva === "lideres"}  onSelect={setTabActiva} />
+        <TabBtn id="admins"   label="Admins"   count={admins.length}   color="#7f1d1d" activa={tabActiva === "admins"}   onSelect={setTabActiva} />
       </div>
 
       {tabActiva === "maestros" && (

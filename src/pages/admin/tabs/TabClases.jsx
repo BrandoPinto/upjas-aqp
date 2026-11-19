@@ -22,18 +22,6 @@ const RED_THEME = {
   badgeText:  "text-blue-700",
 };
 
-export const VIOLET_THEME = {
-  gradient:   "linear-gradient(135deg,#4c1d95,#6d28d9)",
-  activeBtn:  "bg-violet-800",
-  inputFocus: "focus:border-violet-400 focus:ring-2 focus:ring-violet-100",
-  dragActive: "border-violet-400 bg-violet-50",
-  dragIdle:   "hover:border-violet-300 hover:bg-violet-50/50",
-  uploadSpin: "border-violet-200 border-t-violet-700",
-  loadSpin:   "border-violet-100 border-t-violet-700",
-  badgeBg:    "bg-violet-100",
-  badgeText:  "text-violet-700",
-};
-
 export default function TabClases({ theme = RED_THEME }) {
   const [clases, setClases]           = useState([]);
   const [maestros, setMaestros]       = useState([]);

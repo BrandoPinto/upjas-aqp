@@ -62,14 +62,15 @@ export default function HomePage() {
           background: "linear-gradient(135deg, #1a4270, #2d69a3)",
         }}
       >
-        <div className="mx-auto flex max-w-md items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold text-[#f0f4f8]">
+        <div className="mx-auto flex max-w-md items-center justify-between gap-3">
+          {/* min-w-0 permite que el saludo se ajuste (hasta 2 líneas) en vez de chocar con los botones */}
+          <div className="min-w-0">
+            <h1 className="break-words text-lg font-bold leading-tight text-[#f0f4f8]">
               ¡Hola, {profile?.name} {profile?.lastName}!
             </h1>
-            <p className="text-sm text-[rgba(240,244,248,0.55)]">{profile?.codigoJAS}</p>
+            <p className="mt-0.5 text-sm text-[rgba(240,244,248,0.55)]">{profile?.codigoJAS}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <PortalSwitcher />
             <button
               onClick={() => setActiveTab("historial")}

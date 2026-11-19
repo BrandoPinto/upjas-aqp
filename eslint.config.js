@@ -26,4 +26,9 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    // Scripts de administración: se ejecutan con Node, no en el navegador
+    files: ['scripts/**/*.js'],
+    languageOptions: { globals: globals.node },
+  },
 ])

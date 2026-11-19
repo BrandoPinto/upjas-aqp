@@ -4,35 +4,7 @@ import BackButton from "./BackButton";
 import logoUpjas from "../../assets/logo-upjas.png";
 import { Ic } from "../../constants/authIcons";
 import { useEffect, useState } from "react";
-import { loginUser, logoutUser, resetPassword } from "../../services/authService";
-import { useNavigate } from "react-router-dom";
-
-const portalCards = [
-  {
-    key: "maestro",
-    title: "Portal Maestro",
-    subtitle: "Dar puntos y ver tu clase",
-    icon: Ic.teacher,
-    ruta: "/maestro",
-    color: "#54aeb6",
-  },
-  {
-    key: "lider",
-    title: "Portal Líder",
-    subtitle: "Dar puntos en actividades",
-    icon: Ic.shield,
-    ruta: "/lider",
-    color: "#2d69a3",
-  },
-  {
-    key: "admin",
-    title: "Portal Admin",
-    subtitle: "Gestión completa",
-    icon: Ic.shield,
-    ruta: "/admin",
-    color: "#df7e30",
-  },
-];
+import { resetPassword, getPistaCorreo, getUltimoCorreo } from "../../services/authService";
 
 export default function PanelLogin({
   isRegister,
@@ -44,18 +16,44 @@ export default function PanelLogin({
   loading,
   handleLogin,
   handleReset,
-  showToast,
   resetForms,
 }) {
-  const navigate = useNavigate();
+  // Ayuda para recordar con qué correo se registró (búsqueda por celular)
+  const [pistaAbierta, setPistaAbierta] = useState(false);
+  const [pistaPhone, setPistaPhone]     = useState("");
+  const [pista, setPista]               = useState(null); // null | { hint } | { noEncontrada: true }
+  const [pistaLoading, setPistaLoading] = useState(false);
+  const [pistaError, setPistaError]     = useState("");
 
-  const [portalSeleccionado, setPortalSeleccionado] = useState(null);
-  const [portalEmail, setPortalEmail]               = useState("");
-  const [portalPassword, setPortalPassword]         = useState("");
-  const [portalShowPw, setPortalShowPw]             = useState(false);
-  const [portalLoading, setPortalLoading]           = useState(false);
-  const [portalError, setPortalError]               = useState("");
-  const [portalToast, setPortalToast]               = useState(null);
+  const abrirReset = () => {
+    // Conserva el correo escrito (o el último usado en este dispositivo)
+    const previo = email || getUltimoCorreo();
+    resetForms();
+    setEmail(previo);
+    setPistaAbierta(false);
+    setPistaPhone("");
+    setPista(null);
+    setPistaError("");
+    setSubView("reset");
+  };
+
+  const buscarPista = async () => {
+    if (!/^\d{9}$/.test(pistaPhone)) {
+      setPistaError("Ingresa los 9 dígitos de tu celular.");
+      return;
+    }
+    setPistaLoading(true);
+    setPistaError("");
+    setPista(null);
+    try {
+      const hint = await getPistaCorreo(pistaPhone);
+      setPista(hint ? { hint } : { noEncontrada: true });
+    } catch {
+      setPistaError("No se pudo consultar. Intenta de nuevo.");
+    } finally {
+      setPistaLoading(false);
+    }
+  };
 
   const [countdown, setCountdown]       = useState(0);
   const [resendLoading, setResendLoading] = useState(false);
@@ -85,46 +83,6 @@ export default function PanelLogin({
     }
   };
 
-  const mostrarPortalToast = (msg) => {
-    setPortalToast(msg);
-    window.setTimeout(() => setPortalToast(null), 3500);
-  };
-
-  const handlePortalLogin = async () => {
-    if (!portalEmail || !portalPassword) {
-      setPortalError("Ingresa tu correo y contraseña.");
-      return;
-    }
-    setPortalLoading(true);
-    setPortalError("");
-    try {
-      const { profile } = await loginUser(portalEmail, portalPassword);
-      const rolRequerido = portalSeleccionado.key;
-
-      if (
-        profile?.roles?.includes(rolRequerido) ||
-        profile?.roles?.includes("admin")
-      ) {
-        navigate(portalSeleccionado.ruta);
-      } else {
-        await logoutUser();
-        setPortalPassword("");
-        mostrarPortalToast("No tienes acceso a este portal.");
-      }
-    } catch (err) {
-      const ERRORS = {
-        "auth/invalid-credential": "Correo o contraseña incorrectos.",
-        "auth/too-many-requests":  "Demasiados intentos. Espera un momento.",
-        "auth/user-not-found":     "No existe una cuenta con ese correo.",
-        "auth/wrong-password":     "Contraseña incorrecta.",
-        "auth/invalid-email":      "Formato de correo inválido.",
-      };
-      setPortalError(ERRORS[err?.code] || "Error al iniciar sesión.");
-    } finally {
-      setPortalLoading(false);
-    }
-  };
-
   return (
     <div
       className={`
@@ -140,27 +98,6 @@ export default function PanelLogin({
       `}
       style={{ background: "var(--bg-surface)" }}
     >
-
-      {/* ── TOAST PORTAL ── */}
-      {portalToast && (
-        <div
-          className="fixed left-1/2 top-5 z-[200] w-[calc(100%-32px)] max-w-sm -translate-x-1/2 rounded-2xl px-5 py-4 text-center text-sm font-semibold shadow-xl"
-          style={{
-            animation: "toastIn .3s ease both",
-            backdropFilter: "blur(20px)",
-            background: "rgba(215,68,104,0.12)",
-            border: "1px solid rgba(215,68,104,0.30)",
-            color: "#d74468",
-          }}
-        >
-          <div className="flex items-center justify-center gap-2">
-            <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            {portalToast}
-          </div>
-        </div>
-      )}
 
       {/* ── LOGIN NORMAL ── */}
       {subView === "main" && (
@@ -194,7 +131,7 @@ export default function PanelLogin({
             <div className="-mt-1 flex justify-end">
               <button
                 type="button"
-                onClick={() => { resetForms(); setSubView("reset"); }}
+                onClick={abrirReset}
                 className="flex items-center gap-1 text-xs font-medium text-[#df7e30] transition-colors hover:text-[#f09040]"
               >
                 {Ic.key} ¿Olvidaste tu contraseña?
@@ -205,25 +142,6 @@ export default function PanelLogin({
               loading={loading} label="Ingresar"
               loadingText="Ingresando..." onClick={handleLogin}
             />
-
-            <button
-              type="button"
-              onClick={() => {
-                setPortalSeleccionado(null);
-                setPortalEmail("");
-                setPortalPassword("");
-                setPortalError("");
-                setPortalToast(null);
-                setSubView("portal");
-              }}
-              className="flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium text-[rgba(240,244,248,0.55)] transition-all duration-200 hover:text-[#f0f4f8]"
-              style={{
-                border: "1px solid var(--border-default)",
-                background: "var(--bg-glass)",
-              }}
-            >
-              {Ic.shield} Acceso a Portales
-            </button>
           </div>
         </div>
       )}
@@ -278,6 +196,69 @@ export default function PanelLogin({
                 </>
               )}
             </button>
+
+            {/* ¿No recuerdas el correo? Se busca por celular y se muestra una pista */}
+            <div
+              className="mt-2 rounded-2xl px-4 py-3"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+            >
+              <button
+                type="button"
+                onClick={() => setPistaAbierta((v) => !v)}
+                aria-expanded={pistaAbierta}
+                className="flex w-full items-center justify-between text-left text-xs font-semibold text-[rgba(240,244,248,0.65)]"
+              >
+                ¿No recuerdas con qué correo te registraste?
+                <svg
+                  className={`h-3.5 w-3.5 shrink-0 transition-transform ${pistaAbierta ? "rotate-180" : ""}`}
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {pistaAbierta && (
+                <div className="mt-3 flex flex-col gap-3">
+                  <p className="text-xs leading-relaxed text-[rgba(240,244,248,0.45)]">
+                    Escribe el celular con el que te registraste y te mostraremos una pista de tu correo.
+                  </p>
+                  <Field
+                    id="rs-ph" label="Celular (9 dígitos)" type="tel" value={pistaPhone}
+                    onChange={(e) => {
+                      setPistaPhone(e.target.value.replace(/\D/g, "").slice(0, 9));
+                      setPistaError("");
+                      setPista(null);
+                    }}
+                    icon={Ic.key} error={pistaError} autoComplete="tel" dark
+                  />
+                  <button
+                    type="button"
+                    onClick={buscarPista}
+                    disabled={pistaLoading}
+                    className="w-full rounded-2xl py-3 text-sm font-semibold text-[#f0f4f8] transition-all active:scale-[0.98] disabled:opacity-60"
+                    style={{ border: "1px solid var(--border-default)", background: "var(--bg-glass)" }}
+                  >
+                    {pistaLoading ? "Buscando..." : "Ver pista de mi correo"}
+                  </button>
+
+                  {pista?.hint && (
+                    <p className="text-center text-xs text-[rgba(240,244,248,0.55)]">
+                      Tu cuenta usa un correo parecido a{" "}
+                      <span className="font-bold text-[#54aeb6]">{pista.hint}</span>.
+                      Escríbelo completo arriba para recibir el enlace.
+                    </p>
+                  )}
+                  {pista?.noEncontrada && (
+                    <p className="text-center text-xs text-[rgba(240,244,248,0.55)]">
+                      No encontramos una cuenta con ese celular. Prueba con otro número o pide ayuda a un administrador.
+                    </p>
+                  )}
+                  <p className="text-center text-[11px] text-[rgba(240,244,248,0.35)]">
+                    ¿Ya no tienes acceso a ese correo? Pide a un administrador que lo actualice.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -307,7 +288,7 @@ export default function PanelLogin({
           </div>
 
           <h2 className="mb-1 text-xl font-bold text-[#f0f4f8]">¡Revisa tu correo!</h2>
-          <p className="mb-0.5 text-sm text-[rgba(240,244,248,0.45)]">Enviamos un enlace a</p>
+          <p className="mb-0.5 text-sm text-[rgba(240,244,248,0.45)]">Si existe una cuenta con este correo, enviamos un enlace a</p>
           <p className="mb-5 break-all text-center text-sm font-semibold text-[#54aeb6]">{email}</p>
 
           {/* Consejos */}
@@ -324,6 +305,10 @@ export default function PanelLogin({
               <li className="flex items-start gap-2">
                 <span className="mt-0.5 text-[#54aeb6]">·</span>
                 Revisa tu carpeta de <span className="font-medium text-[rgba(240,244,248,0.65)]">spam</span> o correo no deseado
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-[#54aeb6]">·</span>
+                Si no llega nada, quizá te registraste con otro correo
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-0.5 text-[#54aeb6]">·</span>
@@ -360,6 +345,14 @@ export default function PanelLogin({
 
           <button
             type="button"
+            onClick={() => { setPistaAbierta(true); setSubView("reset"); }}
+            className="mb-3 text-xs font-medium text-[#df7e30] transition-colors hover:text-[#f09040]"
+          >
+            Probar con otro correo o buscarlo por celular
+          </button>
+
+          <button
+            type="button"
             onClick={() => { resetForms(); setSubView("main"); }}
             className="w-full rounded-2xl py-3.5 text-sm font-medium text-[rgba(240,244,248,0.50)] transition-all hover:text-[#f0f4f8]"
             style={{ border: "1px solid var(--border-default)", background: "var(--bg-glass)" }}
@@ -369,105 +362,7 @@ export default function PanelLogin({
         </div>
       )}
 
-      {/* ── SELECCIÓN DE PORTAL ── */}
-      {subView === "portal" && !portalSeleccionado && (
-        <div className="w-full max-w-[320px]">
-          <BackButton onClick={() => setSubView("main")} />
-          <h2 className="mb-1 text-xl font-bold text-[#f0f4f8]">Portales</h2>
-          <p className="mb-4 text-sm text-[rgba(240,244,248,0.55)]">Acceso exclusivo por rol</p>
-
-          <div className="flex flex-col gap-2.5">
-            {portalCards.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => { setPortalSeleccionado(item); setPortalError(""); }}
-                className="flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition hover:brightness-110"
-                style={{
-                  background: "var(--bg-elevated)",
-                  border: "1px solid var(--border-default)",
-                }}
-              >
-                <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
-                  style={{ background: item.color }}
-                >
-                  {item.icon}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-[#f0f4f8]">{item.title}</p>
-                  <p className="text-xs text-[rgba(240,244,248,0.40)]">{item.subtitle}</p>
-                </div>
-                <svg className="ml-auto h-4 w-4 text-[rgba(240,244,248,0.25)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            ))}
-          </div>
-          <p className="mt-4 text-center text-xs text-[rgba(240,244,248,0.25)]">Solo personal autorizado</p>
-        </div>
-      )}
-
-      {/* ── LOGIN DE PORTAL ESPECÍFICO ── */}
-      {subView === "portal" && portalSeleccionado && (
-        <div className="w-full max-w-[320px]">
-          <BackButton onClick={() => { setPortalSeleccionado(null); setPortalError(""); }} />
-
-          <div className="mb-5 flex items-center gap-3">
-            <div
-              className="flex h-12 w-12 items-center justify-center rounded-2xl text-white"
-              style={{ background: portalSeleccionado.color }}
-            >
-              {portalSeleccionado.icon}
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-[#f0f4f8]">{portalSeleccionado.title}</h2>
-              <p className="text-xs text-[rgba(240,244,248,0.40)]">{portalSeleccionado.subtitle}</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <Field
-              id="p-em" label="Correo electrónico" type="email" value={portalEmail}
-              onChange={(e) => { setPortalEmail(e.target.value); setPortalError(""); }}
-              icon={Ic.mail} autoComplete="email" dark
-            />
-            <Field
-              id="p-pw" label="Contraseña"
-              type={portalShowPw ? "text" : "password"} value={portalPassword}
-              onChange={(e) => { setPortalPassword(e.target.value); setPortalError(""); }}
-              icon={Ic.lock} autoComplete="current-password" dark
-              right={
-                <button type="button" onClick={() => setPortalShowPw((v) => !v)}>
-                  {portalShowPw ? Ic.eyeOff : Ic.eyeOn}
-                </button>
-              }
-            />
-
-            {portalError && (
-              <p className="text-center text-xs font-medium text-[#d74468]">{portalError}</p>
-            )}
-
-            <button
-              type="button"
-              onClick={handlePortalLogin}
-              disabled={portalLoading}
-              className="w-full rounded-2xl py-3.5 text-sm font-bold text-white transition-all active:scale-[0.98] disabled:opacity-60"
-              style={{
-                background: `linear-gradient(135deg, ${portalSeleccionado.color}cc, ${portalSeleccionado.color})`,
-                boxShadow: `0 6px 20px ${portalSeleccionado.color}44`,
-              }}
-            >
-              {portalLoading ? "Verificando..." : `Ingresar a ${portalSeleccionado.title}`}
-            </button>
-          </div>
-        </div>
-      )}
-
       <style>{`
-        @keyframes toastIn {
-          from { opacity: 0; transform: translateY(-10px) translateX(-50%); }
-          to   { opacity: 1; transform: translateY(0)     translateX(-50%); }
-        }
         @keyframes spin {
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }

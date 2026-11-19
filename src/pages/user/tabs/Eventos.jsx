@@ -371,7 +371,7 @@ function ModalEvento({ evento, confirmado, confirmando, onConfirmar, onCerrar })
 }
 
 // ── Evento Card (estilo admin) ───────────────────────────────────────────────
-function EventoCard({ evento, confirmado, confirmando, onVerMas, compacto = false }) {
+function EventoCard({ evento, confirmado, onVerMas, compacto = false }) {
   const [imgOk, setImgOk] = useState(!!evento.imagen);
   const cc     = getCatColor(evento.categoria);
   const hoy    = new Date().toISOString().split("T")[0];
@@ -666,7 +666,6 @@ export default function Eventos() {
                   key={ev.id}
                   evento={ev}
                   confirmado={!!asistencias[ev.id]}
-                  confirmando={confirmando === ev.id}
                   onVerMas={setEventoSel}
                   compacto={vista === "grilla"}
                 />
@@ -687,7 +686,6 @@ export default function Eventos() {
                   key={ev.id}
                   evento={ev}
                   confirmado={!!asistencias[ev.id]}
-                  confirmando={confirmando === ev.id}
                   onVerMas={setEventoSel}
                   compacto={vista === "grilla"}
                 />

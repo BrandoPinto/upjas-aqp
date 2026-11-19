@@ -18,6 +18,10 @@ dist-ssr
 .firebase/
 .claude/settings.local.json
 
+# Llaves de cuenta de servicio de Firebase (control total del proyecto: NUNCA subir)
+serviceAccount*.json
+*firebase-adminsdk*.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

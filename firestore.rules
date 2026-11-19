@@ -85,8 +85,11 @@ service cloud.firestore {
     }
 
     // ── Índice de celulares únicos ───────────────────────────────────────────
+    // Solo se puede consultar un celular concreto (get); no listar la colección.
+    // Guarda { uid, emailHint } para ayudar a recordar el correo sin exponerlo entero.
     match /phoneIndex/{phone} {
-      allow read:  if true;
+      allow get:   if true;
+      allow list:  if false;
       allow write: if isLoggedIn();
     }
 

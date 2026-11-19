@@ -64,7 +64,6 @@ export default function LoginPage() {
             loading={form.loading}
             handleLogin={form.handleLogin}
             handleReset={form.handleReset}
-            showToast={form.showToast}
             resetForms={form.resetForms}
           />
 
@@ -97,7 +96,6 @@ export default function LoginPage() {
             errors={form.errors}
             loading={form.loading}
             handleRegister={form.handleRegister}
-            showToast={form.showToast}
           />
 
           <OverlayToggle isRegister={form.isRegister} onSwitch={form.switchPanel} />

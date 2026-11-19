@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser, registerUser, resetPassword, getAuthError } from "../services/authService";
+import { loginUser, registerUser, resetPassword, getAuthError, getUltimoCorreo } from "../services/authService";
+import { rutaInicial } from "../constants/portales";
 const emailRegex = /\S+@\S+\.\S+/;
 
 export function useAuthForm() {
@@ -13,7 +14,7 @@ export function useAuthForm() {
   // Campos
   const [name, setName]                   = useState("");
   const [lastName, setLastName]           = useState("");
-  const [email, setEmail]                 = useState("");
+  const [email, setEmail]                 = useState(getUltimoCorreo);
   const [password, setPassword]           = useState("");
   const [phone, setPhone]                 = useState("");
   const [birthDate, setBirthDate]         = useState("");
@@ -99,8 +100,8 @@ export function useAuthForm() {
     if (Object.keys(e).length) { setErrors(e); return; }
     setLoading(true);
     try {
-      await loginUser(email, password);
-      navigate("/"); // siempre home — los portales tienen su propio login
+      const { profile } = await loginUser(email, password);
+      navigate(rutaInicial(profile)); // último portal usado (o "/" si no tiene otro)
     } catch (err) {
       showToast(getAuthError(err?.code));
     } finally {
@@ -123,7 +124,9 @@ export function useAuthForm() {
     } catch (err) {
       console.error("❌ Error registro:", err);
       if (err?.code === "phone/already-in-use") {
-        setErrors({ phone: "Este número ya está registrado." });
+        setErrors({
+          phone: "Este número ya tiene una cuenta. Usa «¿Olvidaste tu contraseña?» para recuperarla; si perdiste el acceso a tu correo, pide ayuda a un administrador.",
+        });
       } else {
         showToast(getAuthError(err?.code));
       }

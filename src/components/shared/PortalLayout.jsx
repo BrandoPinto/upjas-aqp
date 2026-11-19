@@ -19,16 +19,16 @@ export default function PortalLayout({
     <div className="flex min-h-screen flex-col bg-slate-100">
 
       <div className="sticky top-0 z-20 px-4 pt-5 pb-4" style={{ background: gradient }}>
-        <div className="mx-auto flex max-w-md items-center justify-between">
-          <div>
+        <div className="mx-auto flex max-w-md items-center justify-between gap-3">
+          <div className="min-w-0">
             <p className={`text-xs font-semibold uppercase tracking-widest ${subtitleColor}`}>
               {subtitleText}
             </p>
-            <h1 className="text-lg font-bold text-white">
+            <h1 className="break-words text-lg font-bold leading-tight text-white">
               {profile?.name} {profile?.lastName}
             </h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <PortalSwitcher />
             <button
               onClick={handleLogout}

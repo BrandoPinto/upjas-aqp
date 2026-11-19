@@ -60,6 +60,8 @@ export function AuthProvider({ children }) {
   );
 }
 
+// Patrón habitual de contexto: el Provider y su hook viven juntos.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }

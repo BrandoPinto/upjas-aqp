@@ -47,7 +47,7 @@ export default function QrScanner({ role, readerId, types, theme, tiposConEvento
     return () => {
       if (html5QrRef.current) {
         html5QrRef.current.stop().catch(() => {});
-        try { html5QrRef.current.clear(); } catch (_) {}
+        try { html5QrRef.current.clear(); } catch { /* la cámara ya estaba detenida */ }
         html5QrRef.current = null;
       }
       resetContenedor(readerId);
@@ -67,7 +67,7 @@ export default function QrScanner({ role, readerId, types, theme, tiposConEvento
       async (uid) => {
         // QR detectado: detener cámara y buscar usuario
         escaneandoRef.current = false;
-        try { await qr.stop(); qr.clear(); } catch (_) {}
+        try { await qr.stop(); qr.clear(); } catch { /* la cámara ya estaba detenida */ }
         html5QrRef.current = null;
         resetContenedor(readerId);
         setEscaneando(false);
@@ -100,7 +100,7 @@ export default function QrScanner({ role, readerId, types, theme, tiposConEvento
         html5QrRef.current.clear();
         html5QrRef.current = null;
       }
-    } catch (_) {}
+    } catch { /* la cámara ya estaba detenida */ }
     resetContenedor(readerId);
     escaneandoRef.current = false;
     setEscaneando(false);
