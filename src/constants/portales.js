@@ -1,7 +1,6 @@
 // Portales de la app. `role: null` = disponible para cualquier usuario con sesión.
 export const PORTALES = [
   { key: "usuario",    label: "Usuario",    path: "/",           role: null },
-  { key: "bienvenida", label: "Bienvenida", path: "/bienvenida", role: "bienvenida" },
   { key: "maestro",    label: "Maestro",    path: "/maestro",    role: "maestro" },
   { key: "lider",      label: "Líder",      path: "/lider",      role: "lider" },
   { key: "admin",      label: "Admin",      path: "/admin",      role: "admin" },

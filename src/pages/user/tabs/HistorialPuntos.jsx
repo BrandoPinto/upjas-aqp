@@ -18,9 +18,7 @@ const TIPO_META = {
 
 const ROL_LABEL = {
   maestro: "Maestro",
-  lider:   "Líder",
-  bienvenida: "Bienvenida",
-  admin:   "Admin",
+  lider:   "Líder",  admin:   "Admin",
 };
 
 function formatFecha(ts) {

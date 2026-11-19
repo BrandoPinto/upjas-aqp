@@ -145,7 +145,6 @@ export default function TabMaestros() {
   const [filtroM, setFiltroM]   = useState("");
   const [filtroL, setFiltroL]   = useState("");
   const [filtroA, setFiltroA]   = useState("");
-  const [filtroB, setFiltroB]   = useState("");
   const [loading, setLoading]   = useState(true);
   const [accion, setAccion]     = useState(null);
   const [tabActiva, setTabActiva] = useState("maestros");
@@ -174,18 +173,6 @@ export default function TabMaestros() {
     const t = filtroL.toLowerCase();
     return (
       !getRoles(u).includes("lider") &&
-      (u.name?.toLowerCase().includes(t) ||
-       u.lastName?.toLowerCase().includes(t) ||
-       u.codigoJAS?.toLowerCase().includes(t))
-    );
-  });
-
-  // ── Comité de bienvenida ──
-  const bienvenida = usuarios.filter((u) => getRoles(u).includes("bienvenida"));
-  const noBienvenida = usuarios.filter((u) => {
-    const t = filtroB.toLowerCase();
-    return (
-      !getRoles(u).includes("bienvenida") &&
       (u.name?.toLowerCase().includes(t) ||
        u.lastName?.toLowerCase().includes(t) ||
        u.codigoJAS?.toLowerCase().includes(t))
@@ -235,7 +222,7 @@ export default function TabMaestros() {
   const TabBtn = ({ id, label, count, color }) => (
     <button
       onClick={() => setTabActiva(id)}
-      className="flex-1 rounded-2xl px-1 py-3 text-xs font-bold transition"
+      className="flex-1 rounded-2xl py-3 text-sm font-bold transition"
       style={{
         background: tabActiva === id ? color : "transparent",
         color: tabActiva === id ? "#fff" : "#94a3b8",
@@ -252,9 +239,7 @@ export default function TabMaestros() {
       {/* Tabs */}
       <div className="flex gap-2">
         <TabBtn id="maestros" label="Maestros" count={maestros.length} color="#065f46" />
-        <TabBtn id="lideres"  label="Líderes"  count={lideres.length}  color="#4c1d95" />
-        <TabBtn id="bienvenida" label="Bienvenida" count={bienvenida.length} color="#0e7490" />
-        <TabBtn id="admins"   label="Admins"   count={admins.length}   color="#7f1d1d" />
+        <TabBtn id="lideres"  label="Líderes"  count={lideres.length}  color="#4c1d95" />        <TabBtn id="admins"   label="Admins"   count={admins.length}   color="#7f1d1d" />
       </div>
 
       {tabActiva === "maestros" && (
@@ -281,21 +266,6 @@ export default function TabMaestros() {
           rol="lider"
           colorActivo={{ bg: "#f5f3ff", border: "#ddd6fe", avatar: "#ede9fe", avatarText: "#4c1d95" }}
           colorAsignar="#4c1d95"
-          onAsignar={asignar}
-          onQuitar={quitar}
-          accion={accion}
-        />
-      )}
-
-      {tabActiva === "bienvenida" && (
-        <SeccionRol
-          activos={bienvenida}
-          noActivos={noBienvenida}
-          filtro={filtroB}
-          setFiltro={setFiltroB}
-          rol="bienvenida"
-          colorActivo={{ bg: "#ecfeff", border: "#a5f3fc", avatar: "#cffafe", avatarText: "#155e75" }}
-          colorAsignar="#0e7490"
           onAsignar={asignar}
           onQuitar={quitar}
           accion={accion}

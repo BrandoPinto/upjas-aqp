@@ -57,9 +57,7 @@ export const otorgarPuntos = async ({
   // Validar permisos por rol
   const permisosValidos = {
     maestro:  ["asistencia", "invitacion"],
-    lider:    ["actividadPequena", "actividadGrande", "plus"],
-    bienvenida: ["actividadPequena", "actividadGrande"],
-    admin:    ["asistencia", "actividadPequena", "actividadGrande", "invitacion", "plus"],
+    lider:    ["actividadPequena", "actividadGrande", "plus"],    admin:    ["asistencia", "actividadPequena", "actividadGrande", "invitacion", "plus"],
   };
 
   if (!permisosValidos[rolOtorgante]?.includes(tipo)) {
