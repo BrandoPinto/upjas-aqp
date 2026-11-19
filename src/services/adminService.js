@@ -5,6 +5,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { getConfigPuntos, obtenerDescripcion } from "./puntosService";
+import { hoyLocalIso } from "../utils/fechas";
 
 // ── USUARIOS ────────────────────────────────────────────────────
 
@@ -155,6 +156,17 @@ export const getEventosPorTipo = async (tipo) => {
   );
   const eventos = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   return eventos.sort((a, b) => (b.fecha ?? "").localeCompare(a.fecha ?? ""));
+};
+
+// Eventos cuya fecha es hoy (hora local). Los usa el escáner para identificar el evento
+// activo y dar sus puntos automáticamente.
+export const getEventosDeHoy = async () => {
+  const snap = await getDocs(
+    query(collection(db, "eventos"), where("fecha", "==", hoyLocalIso()))
+  );
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.hora ?? "").localeCompare(b.hora ?? ""));
 };
 
 export const crearEvento = async (data) => {

@@ -44,6 +44,21 @@ const yaSeOtorgoHoy = async (uidReceptor, tipo, uidOtorgante) => {
   });
 };
 
+// Puntos de un evento: cada persona los recibe UNA sola vez por evento, sin importar
+// quién la escanee ni cuándo (a diferencia de los puntos sueltos, que son por día).
+const yaTienePuntosDelEvento = async (uidReceptor, eventoId) => {
+  const snap = await getDocs(
+    query(
+      collection(db, "users", uidReceptor, "historialPuntos"),
+      where("eventoId", "==", eventoId),
+      limit(1)
+    )
+  );
+  return !snap.empty;
+};
+
+const MENSAJE_EVENTO_DUPLICADO = "Esta persona ya recibió los puntos de este evento.";
+
 // Otorga puntos a un usuario
 export const otorgarPuntos = async ({
   uidReceptor,
@@ -79,9 +94,12 @@ export const otorgarPuntos = async ({
     }
   }
 
-  // Verificar límite diario
-  const duplicado = await yaSeOtorgoHoy(uidReceptor, tipo, uidOtorgante);
-  if (duplicado) {
+  // Evitar duplicados: por evento si lo hay; si no, límite diario por tipo
+  if (eventoId) {
+    if (await yaTienePuntosDelEvento(uidReceptor, eventoId)) {
+      throw new Error(MENSAJE_EVENTO_DUPLICADO);
+    }
+  } else if (await yaSeOtorgoHoy(uidReceptor, tipo, uidOtorgante)) {
     throw new Error("Ya otorgaste este punto a este usuario hoy.");
   }
 
@@ -96,13 +114,22 @@ export const otorgarPuntos = async ({
     const userSnap = await tx.get(userRef);
     if (!userSnap.exists()) throw new Error("Usuario no encontrado.");
 
+    // Los puntos de un evento usan un id fijo en el historial: si dos escaneos llegan a la
+    // vez, el segundo encuentra el registro y no suma de nuevo.
+    // (Firestore exige hacer TODAS las lecturas antes de la primera escritura.)
+    const historialRef = eventoId
+      ? doc(db, "users", uidReceptor, "historialPuntos", `evento_${eventoId}`)
+      : doc(collection(db, "users", uidReceptor, "historialPuntos"));
+    if (eventoId && (await tx.get(historialRef)).exists()) {
+      throw new Error(MENSAJE_EVENTO_DUPLICADO);
+    }
+
     const puntosActuales = userSnap.data().puntos ?? 0;
 
     // Actualizar puntos
     tx.update(userRef, { puntos: puntosActuales + valor });
 
     // Guardar en historial
-    const historialRef = doc(collection(db, "users", uidReceptor, "historialPuntos"));
     tx.set(historialRef, {
       tipo,
       valor,

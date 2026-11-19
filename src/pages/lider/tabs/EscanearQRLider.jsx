@@ -1,6 +1,5 @@
-import { useState } from "react";
 import QrScanner from "../../../components/shared/QrScanner";
-import { getEventosPorTipo } from "../../../services/adminService";
+import { getEventosPorTipo, getEventosDeHoy } from "../../../services/adminService";
 
 const TIPOS = [
   { key: "actividadPequena", label: "Actividad Pequeña", emoji: "🎯" },
@@ -18,9 +17,9 @@ const THEME = {
   btnGradient:   "linear-gradient(135deg, #4c1d95, #6d28d9)",
 };
 
+// El líder (comité de bienvenida) registra la asistencia: con el evento de hoy,
+// el escaneo da los puntos automáticamente.
 export default function EscanearQRLider() {
-  const [, setEventoActivo] = useState(null);
-
   return (
     <QrScanner
       role="lider"
@@ -29,7 +28,8 @@ export default function EscanearQRLider() {
       theme={THEME}
       tiposConEvento={["actividadGrande", "actividadPequena"]}
       fetchEventosPorTipo={getEventosPorTipo}
-      onEventoConfirmado={setEventoActivo}
+      autoEventoHoy
+      fetchEventosHoy={getEventosDeHoy}
     />
   );
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { db } from "../../../firebase/firebaseConfig";
 import { mostrarToast, mensajeDeError } from "../../../services/toast";
+import { hoyLocalIso } from "../../../utils/fechas";
 import {
   collection, query, getDocs, doc,
   setDoc, getDoc, serverTimestamp, orderBy,
@@ -256,7 +257,7 @@ function ModalAsistencia({ evento, onConfirmar, onCerrar, confirmando }) {
 // ── Modal detalle evento ─────────────────────────────────────────────────────
 function ModalEvento({ evento, confirmado, confirmando, onConfirmar, onCerrar }) {
   const cc     = getCatColor(evento.categoria);
-  const hoy    = new Date().toISOString().split("T")[0];
+  const hoy    = hoyLocalIso();
   const pasado = evento.fecha && evento.fecha < hoy;
 
   return (
@@ -375,7 +376,7 @@ function ModalEvento({ evento, confirmado, confirmando, onConfirmar, onCerrar })
 function EventoCard({ evento, confirmado, onVerMas, compacto = false }) {
   const [imgOk, setImgOk] = useState(!!evento.imagen);
   const cc     = getCatColor(evento.categoria);
-  const hoy    = new Date().toISOString().split("T")[0];
+  const hoy    = hoyLocalIso();
   const pasado = evento.fecha && evento.fecha < hoy;
 
   return (
@@ -583,7 +584,7 @@ export default function Eventos() {
     filtro === "Todos" || e.categoria === filtro
   );
 
-  const hoy      = new Date().toISOString().split("T")[0];
+  const hoy      = hoyLocalIso();
   const proximos = eventosFiltrados.filter(e => !e.fecha || e.fecha >= hoy);
   const pasados  = eventosFiltrados.filter(e => e.fecha && e.fecha < hoy);
 
