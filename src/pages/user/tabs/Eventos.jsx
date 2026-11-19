@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { db } from "../../../firebase/firebaseConfig";
 import { mostrarToast, mensajeDeError } from "../../../services/toast";
-import { hoyLocalIso } from "../../../utils/fechas";
+import { hoyLocalIso, formatearFechaIso } from "../../../utils/fechas";
 import { idAsistencia } from "../../../utils/asistencias";
 import { optimizarImagen } from "../../../utils/imagenes";
 import {
@@ -10,8 +10,12 @@ import {
   setDoc, serverTimestamp, orderBy, where,
 } from "firebase/firestore";
 
-// Caché de módulo: persiste mientras la SPA no recarga
+// Caché de módulo: persiste mientras la SPA no recarga.
+// La lista de eventos caduca a los 5 minutos: así quien deja la app abierta ve los eventos nuevos
+// (antes no los veía hasta recargar la página).
 let _eventosCache = null;
+let _eventosEn = 0;
+const VIGENCIA_EVENTOS_MS = 5 * 60 * 1000;
 const _asistenciasCache = {}; // { [uid]: { [eventoId]: bool } }
 
 // ── Íconos ────────────────────────────────────────────────────────────────────
@@ -68,12 +72,8 @@ const CAT_COLORS = [
 const getCatColor = (cat) =>
   CAT_COLORS[(cat?.charCodeAt(0) ?? 0) % CAT_COLORS.length];
 
-// Formatea fecha "2025-04-27" → "27/4/2025"
-function formatFecha(str) {
-  if (!str) return "";
-  const [y, m, d] = str.split("-");
-  return `${parseInt(d)}/${parseInt(m)}/${y}`;
-}
+// Formatea fecha "2025-04-27" → "27/04/2025"
+const formatFecha = formatearFechaIso;
 
 // ── Modal confirmación de asistencia (2 pasos) ────────────────────────────────
 function ModalAsistencia({ evento, onConfirmar, onCerrar, confirmando }) {
@@ -510,6 +510,11 @@ export default function Eventos() {
   useEffect(() => {
     const uid = user?.uid;
 
+    // Si la lista guardada ya caducó, se vuelve a leer
+    if (_eventosCache !== null && Date.now() - _eventosEn > VIGENCIA_EVENTOS_MS) {
+      _eventosCache = null;
+    }
+
     // Caché hit: datos ya cargados en esta sesión
     if (_eventosCache !== null && (!uid || _asistenciasCache[uid] !== undefined)) {
       setEventos(_eventosCache);
@@ -528,6 +533,7 @@ export default function Eventos() {
             query(collection(db, "eventos"), orderBy("createdAt", "desc"))
           );
           _eventosCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          _eventosEn = Date.now();
         }
         setEventos(_eventosCache);
         const cats = [...new Set(_eventosCache.map(e => e.categoria).filter(Boolean))];

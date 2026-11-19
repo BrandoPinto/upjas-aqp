@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { collection, query, where, getDocs, getDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
 import { mostrarToast } from "../../services/toast";
+import { formatearFechaIso } from "../../utils/fechas";
 
 function DownloadIcon() {
   return (
@@ -121,7 +122,7 @@ export default function ModalAsistenciaEvento({ evento, onCerrar }) {
       pdf.setFont(undefined, "normal");
       const tituloCorto = titulo.length > 65 ? titulo.substring(0, 62) + "..." : titulo;
       pdf.text(tituloCorto, 14, 22);
-      pdf.text(`Fecha: ${fechaEvt}`, pageW - 14, 22, { align: "right" });
+      pdf.text(`Fecha: ${formatearFechaIso(fechaEvt)}`, pageW - 14, 22, { align: "right" });
 
       pdf.setTextColor(60, 60, 60);
       pdf.setFontSize(10);

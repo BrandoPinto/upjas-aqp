@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import LegalModal from "../../../components/shared/LegalModal";
-import {
-  exportarMisDatos, eliminarMiCuenta, crearSolicitudARCO, TIPOS_SOLICITUD,
-} from "../../../services/privacidadService";
+import { exportarMisDatos, eliminarMiCuenta } from "../../../services/privacidadService";
 
 const ERRORES_ELIMINAR = {
   "auth/wrong-password":     "Contraseña incorrecta.",
@@ -18,10 +16,6 @@ export default function PrivacidadModal({ onCerrar, onEditar }) {
   const [leyendo, setLeyendo]           = useState(null);
   const [descargando, setDescargando]   = useState(false);
   const [aviso, setAviso]               = useState(null); // { text, type }
-
-  const [tipo, setTipo]                 = useState(TIPOS_SOLICITUD[0].key);
-  const [detalle, setDetalle]           = useState("");
-  const [enviando, setEnviando]         = useState(false);
 
   const [confirmandoBorrado, setConfirmandoBorrado] = useState(false);
   const [password, setPassword]         = useState("");
@@ -46,25 +40,6 @@ export default function PrivacidadModal({ onCerrar, onEditar }) {
       setAviso({ text: "No se pudo generar la descarga. Intenta de nuevo.", type: "error" });
     } finally {
       setDescargando(false);
-    }
-  };
-
-  // OPOSICIÓN / otras solicitudes: llegan a los administradores
-  const enviarSolicitud = async () => {
-    if (detalle.trim().length < 10) {
-      setAviso({ text: "Cuéntanos un poco más (mínimo 10 caracteres).", type: "error" });
-      return;
-    }
-    setEnviando(true);
-    setAviso(null);
-    try {
-      await crearSolicitudARCO({ tipo, detalle, perfil: profile });
-      setDetalle("");
-      setAviso({ text: "Recibimos tu solicitud. Los organizadores la revisarán.", type: "ok" });
-    } catch {
-      setAviso({ text: "No se pudo enviar tu solicitud. Intenta de nuevo.", type: "error" });
-    } finally {
-      setEnviando(false);
     }
   };
 
@@ -127,35 +102,6 @@ export default function PrivacidadModal({ onCerrar, onEditar }) {
                   <span className="block text-xs font-normal text-slate-400">Rectificación · editar nombre, celular, etc.</span>
                 </span>
                 <span aria-hidden="true">›</span>
-              </button>
-            </div>
-          </section>
-
-          {/* Oposición y otras solicitudes */}
-          <section>
-            <p className={titulo}>Enviar una solicitud a los organizadores</p>
-            <div className="flex flex-col gap-2">
-              <select
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400"
-              >
-                {TIPOS_SOLICITUD.map((t) => <option key={t.key} value={t.key}>{t.label}</option>)}
-              </select>
-              <textarea
-                value={detalle}
-                onChange={(e) => setDetalle(e.target.value)}
-                rows={3}
-                maxLength={500}
-                placeholder="Cuéntanos qué necesitas"
-                className="w-full resize-none rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400"
-              />
-              <button
-                onClick={enviarSolicitud}
-                disabled={enviando}
-                className="w-full rounded-2xl bg-blue-600 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
-              >
-                {enviando ? "Enviando..." : "Enviar solicitud"}
               </button>
             </div>
           </section>

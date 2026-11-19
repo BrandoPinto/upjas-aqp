@@ -3,6 +3,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { useAuth } from "../../context/AuthContext";
 import { getUsuarioPorUID, otorgarPuntos, getConfigPuntos } from "../../services/puntosService";
 import { mostrarToast } from "../../services/toast";
+import { formatearFechaIso } from "../../utils/fechas";
 
 const errorCamara = (err) => {
   const n = err?.name ?? "";
@@ -536,7 +537,7 @@ export default function QrScanner({
                 >
                   <p className="text-sm font-semibold text-slate-800">{ev.titulo}</p>
                   <p className="mt-0.5 text-xs text-slate-400">
-                    🗓 {ev.fecha}{ev.hora ? ` · ${ev.hora}` : ""}{ev.lugar ? ` · 📍 ${ev.lugar}` : ""}
+                    🗓 {formatearFechaIso(ev.fecha)}{ev.hora ? ` · ${ev.hora}` : ""}{ev.lugar ? ` · 📍 ${ev.lugar}` : ""}
                   </p>
                 </button>
               ))}

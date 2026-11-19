@@ -6,6 +6,7 @@ import {
 import { subirImagen } from "../../../services/cloudinaryService";
 import { mostrarToast } from "../../../services/toast";
 import { optimizarImagen } from "../../../utils/imagenes";
+import { formatearFechaIso } from "../../../utils/fechas";
 import { getConfigPuntos } from "../../../services/puntosService";
 import ModalAsistenciaEvento from "../../../components/shared/ModalAsistenciaEvento";
 
@@ -132,7 +133,8 @@ export default function TabEventos({ theme = RED_THEME, canManageCategorias = tr
       } else {
         // crearEvento ahora retorna el ID — actualizamos estado sin re-leer Firestore
         const newId = await crearEvento(form);
-        setEventos((prev) => [...prev, { id: newId, ...form, confirmados: [] }]);
+        // El evento nuevo va PRIMERO (la lista se carga con los más recientes arriba)
+        setEventos((prev) => [{ id: newId, ...form, confirmados: [] }, ...prev]);
       }
       setModal(false);
     } catch {
@@ -224,7 +226,7 @@ export default function TabEventos({ theme = RED_THEME, canManageCategorias = tr
                       </div>
                       <p className="font-bold text-slate-800 truncate">{ev.titulo}</p>
                       {ev.lugar && <p className="text-xs text-slate-500">📍 {ev.lugar}</p>}
-                      <p className="text-xs text-slate-500">🗓 {ev.fecha}{ev.hora ? ` · ${ev.hora}` : ""}</p>
+                      <p className="text-xs text-slate-500">🗓 {formatearFechaIso(ev.fecha)}{ev.hora ? ` · ${ev.hora}` : ""}</p>
                     </div>
                     <div className="flex shrink-0 gap-1.5">
                       <button
