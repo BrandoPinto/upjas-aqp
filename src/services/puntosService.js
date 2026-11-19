@@ -4,6 +4,7 @@ import {
   where, getDocs, limit,
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
+import { idAsistencia } from "../utils/asistencias";
 
 // Caché de sesión — se limpia al recargar la página
 let _configCache = null;
@@ -141,15 +142,16 @@ export const otorgarPuntos = async ({
     });
   });
 
-  // Registrar asistencia confirmada si se indicó un evento
+  // Registrar la asistencia real (la escanearon en el evento). Es el MISMO documento donde la
+  // persona confirma desde la app, así que se une con merge. No se marca "confirmado": eso solo
+  // lo hace la propia persona al confirmar.
   if (eventoId) {
     await setDoc(
-      doc(db, "asistencias", `${eventoId}_${uidReceptor}`),
+      doc(db, "asistencias", idAsistencia(eventoId, uidReceptor)),
       {
         eventoId,
         uid: uidReceptor,
         nombre: nombreReceptor ?? uidReceptor,
-        estado: "confirmado",
         confirmadoEn: serverTimestamp(),
       },
       { merge: true }

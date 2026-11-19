@@ -3,9 +3,10 @@ import { useAuth } from "../../../context/AuthContext";
 import { db } from "../../../firebase/firebaseConfig";
 import { mostrarToast, mensajeDeError } from "../../../services/toast";
 import { hoyLocalIso } from "../../../utils/fechas";
+import { idAsistencia } from "../../../utils/asistencias";
 import {
   collection, query, getDocs, doc,
-  setDoc, getDoc, serverTimestamp, orderBy,
+  setDoc, serverTimestamp, orderBy, where,
 } from "firebase/firestore";
 
 // Caché de módulo: persiste mientras la SPA no recarga
@@ -531,13 +532,17 @@ export default function Eventos() {
         setCategorias(cats);
 
         if (uid && _asistenciasCache[uid] === undefined) {
-          const checks = await Promise.all(
-            _eventosCache.map(e =>
-              getDoc(doc(db, "asistencias", `${uid}_${e.id}`))
-                .then(snap => [e.id, snap.exists()])
-            )
+          // Una sola consulta con todas las asistencias de la persona (en vez de un documento por evento).
+          // Busca por el campo eventoId, así no depende del formato del id del documento.
+          const snap = await getDocs(
+            query(collection(db, "asistencias"), where("uid", "==", uid))
           );
-          _asistenciasCache[uid] = Object.fromEntries(checks);
+          const mapa = Object.fromEntries(_eventosCache.map(e => [e.id, false]));
+          snap.docs.forEach(d => {
+            const eventoId = d.data().eventoId;
+            if (eventoId) mapa[eventoId] = true;
+          });
+          _asistenciasCache[uid] = mapa;
         }
         if (uid) setAsistencias(_asistenciasCache[uid] ?? {});
       } catch (err) {
@@ -553,8 +558,8 @@ export default function Eventos() {
     if (!evento || !user) return;
     setConfirmando(evento.id);
     try {
-      const docId = `${user.uid}_${evento.id}`;
-      await setDoc(doc(db, "asistencias", docId), {
+      // Mismo documento que usa el escáner (merge: no pisa la asistencia real si ya la escanearon)
+      await setDoc(doc(db, "asistencias", idAsistencia(evento.id, user.uid)), {
         uid:          user.uid,
         nombre:       profile?.name ? `${profile.name} ${profile.lastName ?? ""}`.trim() : (user.displayName ?? user.email),
         email:        user.email ?? "",
@@ -563,7 +568,7 @@ export default function Eventos() {
         tipoPuntos:   evento.tipoPuntos ?? "",
         estado:       "confirmado",
         fecha:        serverTimestamp(),
-      });
+      }, { merge: true });
       // Actualizar estado y sincronizar con caché
       setAsistencias(p => {
         const next = { ...p, [evento.id]: true };
