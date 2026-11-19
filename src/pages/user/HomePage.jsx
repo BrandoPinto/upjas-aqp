@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { logoutUser } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 import PortalSwitcher from "../../components/shared/PortalSwitcher";
+import ErrorBoundary from "../../components/shared/ErrorBoundary";
 import MiPase from "./tabs/MiPase";
 import Clases from "./tabs/Clases";
 import Eventos from "./tabs/Eventos";
@@ -89,10 +90,12 @@ export default function HomePage() {
       {/* Contenido de tabs */}
       <div className="flex-1 overflow-y-auto pb-24">
         <div className="mx-auto max-w-md">
-          {activeTab === "pase"      && <MiPase onLogout={handleLogout} />}
-          {activeTab === "clases"    && <Clases />}
-          {activeTab === "eventos"   && <Eventos />}
-          {activeTab === "historial" && <HistorialPuntos uid={profile?.uid} puntos={profile?.puntos} />}
+          <ErrorBoundary resetKey={activeTab}>
+            {activeTab === "pase"      && <MiPase onLogout={handleLogout} />}
+            {activeTab === "clases"    && <Clases />}
+            {activeTab === "eventos"   && <Eventos />}
+            {activeTab === "historial" && <HistorialPuntos uid={profile?.uid} puntos={profile?.puntos} />}
+          </ErrorBoundary>
         </div>
       </div>
 

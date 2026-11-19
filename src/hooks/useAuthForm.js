@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, registerUser, resetPassword, getAuthError, getUltimoCorreo } from "../services/authService";
 import { rutaInicial } from "../constants/portales";
+import { CONSENTIMIENTOS_VACIOS, todosAceptados } from "../constants/legal";
 const emailRegex = /\S+@\S+\.\S+/;
 
 export function useAuthForm() {
@@ -22,7 +23,7 @@ export function useAuthForm() {
   const [relation, setRelation]           = useState("");
   const [stateValue, setStateValue]       = useState("");
   const [parish, setParish]               = useState("");
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [consentimientos, setConsentimientos] = useState(CONSENTIMIENTOS_VACIOS);
 
   // UI
   const [showPw, setShowPw]   = useState(false);
@@ -47,7 +48,7 @@ export function useAuthForm() {
   const resetForms = () => {
     setName(""); setLastName(""); setEmail(""); setPassword("");
     setPhone(""); setBirthDate(""); setGender(""); setRelation("");
-    setStateValue(""); setParish(""); setTermsAccepted(false);
+    setStateValue(""); setParish(""); setConsentimientos(CONSENTIMIENTOS_VACIOS);
     setErrors({}); setShowPw(false);
   };
 
@@ -90,7 +91,7 @@ export function useAuthForm() {
       if (!stateValue) e.stateValue = "Selecciona un estado";
       if (!parish) e.parish = "Selecciona un barrio";
     }
-    if (!termsAccepted) e.termsAccepted = "Debes aceptar los términos";
+    if (!todosAceptados(consentimientos)) e.termsAccepted = "Debes aceptar los tres puntos para registrarte.";
     return e;
   };
 
@@ -169,6 +170,6 @@ export function useAuthForm() {
     relation, setRelation,
     stateValue, setStateValue,
     parish, setParish,
-    termsAccepted, setTermsAccepted,
+    consentimientos, setConsentimientos,
   };
 }

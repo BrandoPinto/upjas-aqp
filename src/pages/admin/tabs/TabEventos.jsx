@@ -4,6 +4,7 @@ import {
   getCategorias, crearCategoria, eliminarCategoria,
 } from "../../../services/adminService";
 import { subirImagen } from "../../../services/cloudinaryService";
+import { mostrarToast } from "../../../services/toast";
 import { getConfigPuntos } from "../../../services/puntosService";
 import ModalAsistenciaEvento from "../../../components/shared/ModalAsistenciaEvento";
 
@@ -106,7 +107,7 @@ export default function TabEventos({ theme = RED_THEME, canManageCategorias = tr
       setForm((p) => ({ ...p, imagen: url }));
       setUrlInput(url);
     } catch {
-      alert("Error al subir imagen. Intenta de nuevo.");
+      mostrarToast("Error al subir imagen. Intenta de nuevo.");
     } finally {
       setSubiendo(false);
     }
@@ -119,7 +120,7 @@ export default function TabEventos({ theme = RED_THEME, canManageCategorias = tr
 
   const guardar = async () => {
     if (!form.titulo || !form.fecha || !form.categoria) {
-      alert("Completa título, fecha y categoría.");
+      mostrarToast("Completa título, fecha y categoría.");
       return;
     }
     setGuardando(true);
@@ -134,7 +135,7 @@ export default function TabEventos({ theme = RED_THEME, canManageCategorias = tr
       }
       setModal(false);
     } catch {
-      alert("Error al guardar");
+      mostrarToast("No se pudo guardar. Intenta de nuevo.");
     } finally {
       setGuardando(false);
     }

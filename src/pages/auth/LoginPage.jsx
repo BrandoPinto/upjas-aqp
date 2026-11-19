@@ -89,8 +89,8 @@ export default function LoginPage() {
             setStateValue={form.setStateValue}
             parish={form.parish}
             setParish={form.setParish}
-            termsAccepted={form.termsAccepted}
-            setTermsAccepted={form.setTermsAccepted}
+            consentimientos={form.consentimientos}
+            setConsentimientos={form.setConsentimientos}
             showPw={form.showPw}
             setShowPw={form.setShowPw}
             errors={form.errors}

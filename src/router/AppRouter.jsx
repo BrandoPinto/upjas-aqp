@@ -8,6 +8,7 @@ import HomePage from "../pages/user/HomePage";
 import MaestroDashboard from "../pages/maestro/MaestroDashboard";
 import LiderDashboard from "../pages/lider/LiderDashboard";import AdminDashboard from "../pages/admin/AdminDashboard";
 import LoadingScreen from "../components/shared/LoadingScreen";
+import ConsentGate from "../components/shared/ConsentGate";
 
 // Solo para no autenticados — si ya hay sesión va al último portal usado (o a "/")
 function PublicRoute({ children }) {
@@ -32,7 +33,8 @@ function RecordarPortal() {
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
-  return user ? children : <Navigate to="/login" replace />;
+  // ConsentGate pide aceptar los textos legales vigentes antes de mostrar la app
+  return user ? <ConsentGate>{children}</ConsentGate> : <Navigate to="/login" replace />;
 }
 
 // Solo para un rol específico

@@ -3,6 +3,8 @@ import { getTodosUsuarios, getUsuariosPagina, otorgarPuntosAdmin, eliminarUsuari
 import { getConfigPuntos } from "../../../services/puntosService";
 import { useAuth } from "../../../context/AuthContext";
 import { TIPOS_PUNTOS as TIPOS } from "../../../constants/puntos";
+import ModalSolicitudesARCO from "./ModalSolicitudesARCO";
+import { mostrarToast } from "../../../services/toast";
 
 const PAGE_SIZE = 10;
 
@@ -33,6 +35,7 @@ export default function TabUsuarios() {
   const [allUsersCache, setAllUsersCache] = useState(null);
   const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
   const [generandoPDF, setGenerandoPDF]   = useState(false);
+  const [verSolicitudes, setVerSolicitudes] = useState(false);
   const [filtro, setFiltro]               = useState("");
   const [loading, setLoading]             = useState(true);
   const [seleccionado, setSeleccionado]     = useState(null);
@@ -148,7 +151,7 @@ export default function TabUsuarios() {
       if (seleccionado?.uid === confirmarEliminar.uid) { setSeleccionado(null); setMensaje(null); }
       setConfirmarEliminar(null);
     } catch (err) {
-      alert(err.message ?? "Error al eliminar el usuario.");
+      mostrarToast(err.message ?? "Error al eliminar el usuario.");
     } finally {
       setEliminando(false);
     }
@@ -200,7 +203,7 @@ export default function TabUsuarios() {
       actualizarPuntos(uid, -entrada.valor);
       setHistorialUsuario((prev) => ({ ...prev, puntos: Math.max(0, (prev.puntos ?? 0) - entrada.valor) }));
     } catch (err) {
-      alert(err.message ?? "Error al eliminar la entrada.");
+      mostrarToast(err.message ?? "Error al eliminar la entrada.");
     } finally {
       setEliminandoEntrada(null);
     }
@@ -284,7 +287,7 @@ export default function TabUsuarios() {
       pdf.save(`usuarios-upjasaqp-${new Date().toISOString().slice(0, 10)}.pdf`);
     } catch (err) {
       console.error("Error generando PDF:", err);
-      alert("Error al generar el reporte. Intenta de nuevo.");
+      mostrarToast("Error al generar el reporte. Intenta de nuevo.");
     } finally {
       setGenerandoPDF(false);
     }
@@ -321,6 +324,18 @@ export default function TabUsuarios() {
           )}
         </div>
 
+        {/* Solicitudes de privacidad (derechos ARCO) */}
+        <button
+          onClick={() => setVerSolicitudes(true)}
+          title="Solicitudes de privacidad (ARCO)"
+          aria-label="Solicitudes de privacidad (ARCO)"
+          className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-3.5 shadow-sm transition hover:bg-red-50 hover:border-red-200"
+        >
+          <svg className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+        </button>
+
         {/* Botón reporte PDF */}
         <button
           onClick={generarPDF}
@@ -337,6 +352,8 @@ export default function TabUsuarios() {
           )}
         </button>
       </div>
+
+      {verSolicitudes && <ModalSolicitudesARCO onCerrar={() => setVerSolicitudes(false)} />}
 
       {cargandoBusqueda && (
         <div className="flex justify-center py-4">

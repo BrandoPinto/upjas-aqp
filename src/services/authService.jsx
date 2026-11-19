@@ -9,6 +9,7 @@ import {
   runTransaction, serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "../firebase/firebaseConfig";
+import { nuevaConstanciaConsentimiento } from "./privacidadService";
 
 const AUTH_ERRORS = {
   "auth/user-not-found":       "No existe una cuenta con ese correo.",
@@ -107,6 +108,7 @@ export const registerUser = async ({
         roles: [],
         codigoJAS,
         puntos: 0,
+        consentimientos: nuevaConstanciaConsentimiento(),
         createdAt: serverTimestamp(),
       });
     });

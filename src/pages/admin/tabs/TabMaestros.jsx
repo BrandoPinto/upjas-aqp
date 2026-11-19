@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getTodosUsuarios, asignarRol, quitarRol } from "../../../services/adminService";
+import { mostrarToast, mensajeDeError } from "../../../services/toast";
 
 const PAGE_SIZE = 10;
 
@@ -170,7 +171,10 @@ export default function TabMaestros() {
   const [tabActiva, setTabActiva] = useState("maestros");
 
   useEffect(() => {
-    getTodosUsuarios().then((us) => { setUsuarios(us); setLoading(false); });
+    getTodosUsuarios()
+      .then(setUsuarios)
+      .catch((err) => mostrarToast(mensajeDeError(err, "No se pudo cargar la lista de usuarios.")))
+      .finally(() => setLoading(false));
   }, []);
 
   const getRoles = (u) => Array.isArray(u.roles) ? u.roles : [];
@@ -213,24 +217,34 @@ export default function TabMaestros() {
 
   const asignar = async (uid, rol) => {
     setAccion(uid + rol);
-    await asignarRol(uid, rol);
-    setUsuarios((prev) =>
-      prev.map((u) =>
-        u.uid === uid ? { ...u, roles: [...getRoles(u), rol] } : u
-      )
-    );
-    setAccion(null);
+    try {
+      await asignarRol(uid, rol);
+      setUsuarios((prev) =>
+        prev.map((u) =>
+          u.uid === uid ? { ...u, roles: [...getRoles(u), rol] } : u
+        )
+      );
+    } catch (err) {
+      mostrarToast(mensajeDeError(err, "No se pudo asignar el rol. Intenta de nuevo."));
+    } finally {
+      setAccion(null);
+    }
   };
 
   const quitar = async (uid, rol) => {
     setAccion(uid + rol);
-    await quitarRol(uid, rol);
-    setUsuarios((prev) =>
-      prev.map((u) =>
-        u.uid === uid ? { ...u, roles: getRoles(u).filter((r) => r !== rol) } : u
-      )
-    );
-    setAccion(null);
+    try {
+      await quitarRol(uid, rol);
+      setUsuarios((prev) =>
+        prev.map((u) =>
+          u.uid === uid ? { ...u, roles: getRoles(u).filter((r) => r !== rol) } : u
+        )
+      );
+    } catch (err) {
+      mostrarToast(mensajeDeError(err, "No se pudo quitar el rol. Intenta de nuevo."));
+    } finally {
+      setAccion(null);
+    }
   };
 
   if (loading) return (

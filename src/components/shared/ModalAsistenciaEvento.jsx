@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { collection, query, where, getDocs, getDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
+import { mostrarToast } from "../../services/toast";
 
 function DownloadIcon() {
   return (
@@ -176,7 +177,7 @@ export default function ModalAsistenciaEvento({ evento, onCerrar }) {
       pdf.save(`${sufijo}-${slug}-${fechaEvt}.pdf`);
     } catch (err) {
       console.error("Error generando PDF:", err);
-      alert("Error al generar el reporte. Intenta de nuevo.");
+      mostrarToast("Error al generar el reporte. Intenta de nuevo.");
     } finally {
       setGenerando(null);
     }
@@ -206,7 +207,7 @@ export default function ModalAsistenciaEvento({ evento, onCerrar }) {
       XLSX.writeFile(libro, `${sufijo}-${slug}-${fechaEvt}.xlsx`);
     } catch (err) {
       console.error("Error generando Excel:", err);
-      alert("Error al generar el reporte. Intenta de nuevo.");
+      mostrarToast("Error al generar el reporte. Intenta de nuevo.");
     } finally {
       setGenerando(null);
     }

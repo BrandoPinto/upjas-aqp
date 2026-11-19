@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { getClases, crearClase, actualizarClase, eliminarClase, getMaestros } from "../../../services/adminService";
 import { subirImagen } from "../../../services/cloudinaryService";
+import { mostrarToast } from "../../../services/toast";
 
 const MODALIDADES = ["Presencial", "Virtual", "Híbrida"];
 const DIAS        = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -66,7 +67,7 @@ export default function TabClases({ theme = RED_THEME }) {
       setForm((p) => ({ ...p, imagen: url }));
       setUrlInput(url);
     } catch {
-      alert("Error al subir imagen. Intenta de nuevo.");
+      mostrarToast("Error al subir imagen. Intenta de nuevo.");
     } finally {
       setSubiendo(false);
     }
@@ -88,7 +89,7 @@ export default function TabClases({ theme = RED_THEME }) {
 
   const guardar = async () => {
     if (!form.titulo || !form.hora || !form.maestroUid) {
-      alert("Completa título, hora y maestro.");
+      mostrarToast("Completa título, hora y maestro.");
       return;
     }
     setGuardando(true);
@@ -103,7 +104,7 @@ export default function TabClases({ theme = RED_THEME }) {
       }
       setModal(false);
     } catch {
-      alert("Error al guardar");
+      mostrarToast("No se pudo guardar. Intenta de nuevo.");
     } finally {
       setGuardando(false);
     }

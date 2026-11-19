@@ -29,13 +29,25 @@ service cloud.firestore {
         isAdmin() ||
         (canAwardPoints() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['puntos']))
       );
-      allow delete: if isAdmin();
+      // El admin puede eliminar cualquier usuario; cada persona puede eliminar su propia cuenta (derecho de cancelación)
+      allow delete: if isAdmin() || (isLoggedIn() && request.auth.uid == uid);
 
       match /historialPuntos/{docId} {
         allow read:   if isLoggedIn() && (request.auth.uid == uid || canAwardPoints());
         allow create: if canAwardPoints();
         allow delete: if isLoggedIn() && (request.auth.uid == uid || canAwardPoints());
       }
+    }
+
+    // ── Solicitudes de privacidad (derechos ARCO) ────────────────────────────
+    // Cada persona crea las suyas y solo ve las suyas; el admin las ve y las atiende.
+    match /solicitudesARCO/{docId} {
+      allow create: if isLoggedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.estado == 'pendiente';
+      allow read:   if isLoggedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
+      allow delete: if false;
     }
 
     // ── Asistencias a eventos ────────────────────────────────────────────────

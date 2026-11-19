@@ -3,6 +3,7 @@ import { getClases } from "../../../services/adminService";
 import { useAuth } from "../../../context/AuthContext";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
+import { mostrarToast, mensajeDeError } from "../../../services/toast";
 
 // Caché de módulo: persiste mientras la SPA no recarga
 let _clasesCache = null;
@@ -452,14 +453,8 @@ export default function Clases() {
       setTimeout(() => setExito(false), 3000);
     } catch (err) {
       console.error("[Clases] Error al inscribirse:", err);
-      // Mostrar mensaje específico según el error
-      if (err.code === "permission-denied") {
-        alert("Sin permisos para guardar. Revisa las reglas de Firestore.");
-      } else if (err.code === "unavailable") {
-        alert("Sin conexión. Verifica tu internet e intenta de nuevo.");
-      } else {
-        alert(`Error: ${err.message ?? "Intenta de nuevo."}`);
-      }
+      // Mensaje comprensible según el tipo de error (permisos, conexión, etc.)
+      mostrarToast(mensajeDeError(err, "No se pudo completar tu inscripción. Intenta de nuevo."));
     } finally {
       setInscribiendo(false);
     }

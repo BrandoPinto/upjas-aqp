@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import Field from "./Field";
 import FechaNacimientoInput from "../shared/FechaNacimientoInput";
+import ConsentCheckboxes from "../shared/ConsentCheckboxes";
 import PrimaryButton from "./PrimaryButton";
 import { Ic } from "../../constants/authIcons";
 import { useEstacas } from "../../hooks/useEstacas";
@@ -17,7 +18,7 @@ export default function PanelRegister({
   relation, setRelation,
   stateValue, setStateValue,
   parish, setParish,
-  termsAccepted, setTermsAccepted,
+  consentimientos, setConsentimientos,
   showPw, setShowPw,
   errors,
   loading,
@@ -232,7 +233,7 @@ export default function PanelRegister({
             )}
           </div>
 
-          {/* Términos */}
+          {/* Consentimientos: tres casillas separadas (Ley N° 29733) */}
           <div
             className="rounded-2xl p-4"
             style={{
@@ -240,22 +241,12 @@ export default function PanelRegister({
               border: "1px solid var(--border-default)",
             }}
           >
-            <label className="flex items-start gap-3 text-sm text-[#f0f4f8]">
-              <input
-                type="checkbox" checked={termsAccepted}
-                onChange={(e) => setTermsAccepted(e.target.checked)}
-                className="mt-1 h-4 w-4 accent-[#2d69a3]"
-              />
-              <span>
-                <span className="font-semibold">Acepto los términos de privacidad.</span>
-                <span className="mt-1 block text-xs leading-relaxed text-[rgba(240,244,248,0.40)]">
-                  La información proporcionada será utilizada exclusivamente
-                  para fines organizativos y académicos de UP JAS AQP.
-                  Tus datos están seguros.
-                </span>
-              </span>
-            </label>
-            {errors.termsAccepted && <p className="mt-2 text-xs font-medium text-[#d74468]">{errors.termsAccepted}</p>}
+            <ConsentCheckboxes
+              dark
+              value={consentimientos}
+              onChange={setConsentimientos}
+              error={errors.termsAccepted}
+            />
           </div>
 
           <PrimaryButton

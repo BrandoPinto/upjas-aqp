@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getConfigPuntos } from "../../../services/puntosService";
 import { actualizarConfigPuntos, getTopUsuariosPuntos, getHistorialPuntos } from "../../../services/adminService";
+import { mostrarToast } from "../../../services/toast";
 
 const TIPOS = [
   { key: "asistencia",       label: "Asistencia a Instituto",         emoji: "📚" },
@@ -109,7 +110,7 @@ export default function TabPuntos() {
       await actualizarConfigPuntos(config);
       setGuardado(true);
       setTimeout(() => setGuardado(false), 2000);
-    } catch { alert("Error al guardar"); }
+    } catch { mostrarToast("No se pudo guardar. Intenta de nuevo."); }
     finally { setGuardando(false); }
   };
 

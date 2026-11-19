@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { db } from "../../../firebase/firebaseConfig";
+import { mostrarToast, mensajeDeError } from "../../../services/toast";
 import {
   collection, query, getDocs, doc,
   setDoc, getDoc, serverTimestamp, orderBy,
@@ -572,7 +573,7 @@ export default function Eventos() {
       setTimeout(() => setExito(false), 3000);
     } catch (err) {
       console.error("[Eventos] Error confirmando:", err);
-      alert("Error al confirmar. Intenta de nuevo.");
+      mostrarToast(mensajeDeError(err, "No se pudo confirmar tu asistencia. Intenta de nuevo."));
     } finally {
       setConfirmando(null);
     }

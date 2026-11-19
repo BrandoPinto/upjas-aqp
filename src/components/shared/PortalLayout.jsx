@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { logoutUser } from "../../services/authService";
 import PortalSwitcher from "./PortalSwitcher";
+import ErrorBoundary from "./ErrorBoundary";
 
 export default function PortalLayout({
   gradient, subtitleText, subtitleColor, accentColor,
@@ -41,7 +42,9 @@ export default function PortalLayout({
       </div>
 
       <div className="flex-1 overflow-y-auto pb-24">
-        <div className="mx-auto max-w-md">{children}</div>
+        <div className="mx-auto max-w-md">
+          <ErrorBoundary resetKey={activeTab}>{children}</ErrorBoundary>
+        </div>
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 bg-white">
