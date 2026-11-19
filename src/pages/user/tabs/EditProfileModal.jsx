@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useEstacas } from "../../../hooks/useEstacas";
 import { updateUserProfile } from "../../../services/authService";
+import FechaNacimientoInput from "../../../components/shared/FechaNacimientoInput";
 
 export default function EditProfileModal({ profile, onClose }) {
   const [name, setName]           = useState(profile?.name ?? "");
@@ -105,7 +106,12 @@ export default function EditProfileModal({ profile, onClose }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>F. de nacimiento</label>
-              <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className={fieldClass} />
+              <FechaNacimientoInput
+                value={birthDate}
+                onChange={setBirthDate}
+                inputClass={fieldClass}
+                iconClass="mr-2 text-slate-500"
+              />
               {errors.birthDate && <p className={errClass}>{errors.birthDate}</p>}
             </div>
             <div>

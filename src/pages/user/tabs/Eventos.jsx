@@ -120,12 +120,12 @@ function ModalAsistencia({ evento, onConfirmar, onCerrar, confirmando }) {
                   { icon: <IcPin />,   label: "Lugar",     val: evento.lugar || "Por confirmar" },
                   { icon: <IcStar />,  label: "Puntos",    val: evento.tipoPuntos ? evento.tipoPuntos.charAt(0).toUpperCase() + evento.tipoPuntos.slice(1).replace(/([A-Z])/g, " $1") : "Sin puntos" },
                 ].map(({ icon, label, val }) => (
-                  <div key={label} className="bg-slate-50 rounded-xl px-3 py-2.5">
+                  <div key={label} className={`bg-slate-50 rounded-xl px-3 py-2.5 ${label === "Lugar" ? "col-span-2" : ""}`}>
                     <div className="flex items-center gap-1 text-slate-400 mb-0.5">
                       {icon}
                       <span className="text-[10px] font-semibold uppercase tracking-wide">{label}</span>
                     </div>
-                    <p className="text-sm font-bold text-slate-700 truncate">{val}</p>
+                    <p className="text-sm font-bold text-slate-700 break-words">{val}</p>
                   </div>
                 ))}
               </div>
@@ -310,12 +310,12 @@ function ModalEvento({ evento, confirmado, confirmando, onConfirmar, onCerrar })
               { icon: <IcClock />, label: "Hora",  val: evento.hora || "Por confirmar" },
               evento.lugar && { icon: <IcPin />, label: "Lugar", val: evento.lugar },
             ].filter(Boolean).map(({ icon, label, val }) => (
-              <div key={label} className="bg-slate-50 rounded-xl px-3 py-2.5">
+              <div key={label} className={`bg-slate-50 rounded-xl px-3 py-2.5 ${label === "Lugar" ? "col-span-2" : ""}`}>
                 <div className="flex items-center gap-1 text-slate-400 mb-0.5">
                   {icon}
                   <span className="text-[10px] font-semibold uppercase tracking-wide">{label}</span>
                 </div>
-                <p className="text-sm font-bold text-slate-700 truncate">{val}</p>
+                <p className="text-sm font-bold text-slate-700 break-words">{val}</p>
               </div>
             ))}
           </div>
@@ -371,7 +371,7 @@ function ModalEvento({ evento, confirmado, confirmando, onConfirmar, onCerrar })
 }
 
 // ── Evento Card (estilo admin) ───────────────────────────────────────────────
-function EventoCard({ evento, confirmado, confirmando, onVerMas }) {
+function EventoCard({ evento, confirmado, confirmando, onVerMas, compacto = false }) {
   const [imgOk, setImgOk] = useState(!!evento.imagen);
   const cc     = getCatColor(evento.categoria);
   const hoy    = new Date().toISOString().split("T")[0];
@@ -382,7 +382,7 @@ function EventoCard({ evento, confirmado, confirmando, onVerMas }) {
 
       {/* Imagen grande ancho completo */}
       {evento.imagen && imgOk ? (
-        <div className="relative w-full overflow-hidden" style={{ height: 160 }}>
+        <div className="relative w-full overflow-hidden" style={{ height: compacto ? 100 : 160 }}>
           <img
             src={evento.imagen} alt={evento.titulo}
             className="w-full h-full object-cover"
@@ -400,7 +400,7 @@ function EventoCard({ evento, confirmado, confirmando, onVerMas }) {
       ) : null}
 
       {/* Cuerpo */}
-      <div className="p-4">
+      <div className={compacto ? "p-3" : "p-4"}>
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
 
@@ -418,19 +418,19 @@ function EventoCard({ evento, confirmado, confirmando, onVerMas }) {
             </div>
 
             {/* Título */}
-            <p className="font-bold text-slate-800 text-base leading-snug">
+            <p className={`font-bold text-slate-800 leading-snug break-words ${compacto ? "text-sm" : "text-base"}`}>
               {evento.titulo}
             </p>
 
-            {/* Lugar */}
+            {/* Lugar (multilínea: no se corta el texto largo) */}
             {evento.lugar && (
-              <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                <IcPin /> {evento.lugar}
+              <p className="text-xs text-slate-500 mt-1 flex items-start gap-1 break-words">
+                <IcPin /> <span className="min-w-0">{evento.lugar}</span>
               </p>
             )}
 
             {/* Fecha y hora */}
-            <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
+            <p className="text-xs text-slate-500 mt-0.5 flex items-start gap-1 break-words">
               <IcCal />
               {formatFecha(evento.fecha)}
               {evento.hora ? ` · ${evento.hora}` : ""}
@@ -443,14 +443,14 @@ function EventoCard({ evento, confirmado, confirmando, onVerMas }) {
           {confirmado ? (
             <button
               onClick={() => onVerMas(evento)}
-              className="w-full flex items-center justify-between px-4 py-2.5 rounded-2xl transition active:scale-95"
+              className={`w-full flex items-center py-2.5 rounded-2xl transition active:scale-95 ${compacto ? "justify-center px-2" : "justify-between px-4"}`}
               style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}
             >
               <div className="flex items-center gap-1.5">
                 <span className="text-green-500"><IcCheck /></span>
-                <span className="text-sm font-bold text-green-700">Asistencia confirmada</span>
+                <span className="text-sm font-bold text-green-700">{compacto ? "Confirmado" : "Asistencia confirmada"}</span>
               </div>
-              <span className="text-xs text-green-600 font-medium">Ver detalle →</span>
+              {!compacto && <span className="text-xs text-green-600 font-medium">Ver detalle →</span>}
             </button>
           ) : pasado ? (
             <button
@@ -469,7 +469,7 @@ function EventoCard({ evento, confirmado, confirmando, onVerMas }) {
               }}
             >
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              <span className="relative">Más información</span>
+              <span className="relative">{compacto ? "Ver más" : "Más información"}</span>
             </button>
           )}
         </div>
@@ -491,6 +491,16 @@ export default function Eventos() {
   const [eventoSel, setEventoSel]       = useState(null);
   const [confirmando, setConfirmando]   = useState(null);
   const [exito, setExito]               = useState(false);
+  // Vista del catálogo ("lista" | "grilla"); se recuerda la preferencia del usuario
+  const [vista, setVista] = useState(() => {
+    try { return localStorage.getItem("eventosVista") === "grilla" ? "grilla" : "lista"; }
+    catch { return "lista"; }
+  });
+  const cambiarVista = (v) => {
+    setVista(v);
+    try { localStorage.setItem("eventosVista", v); }
+    catch { /* sin acceso a localStorage: la preferencia solo dura la sesión */ }
+  };
 
   useEffect(() => {
     const uid = user?.uid;
@@ -586,9 +596,33 @@ export default function Eventos() {
     <div className="flex flex-col pb-8">
 
       {/* Header */}
-      <div className="px-4 pt-5 pb-2">
-        <h2 className="text-lg font-bold text-white">Eventos</h2>
-        <p className="text-xs text-white/60 mt-0.5">Confirma tu asistencia a los eventos.</p>
+      <div className="px-4 pt-5 pb-2 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-white">Eventos</h2>
+          <p className="text-xs text-white/60 mt-0.5">Confirma tu asistencia a los eventos.</p>
+        </div>
+
+        {/* Alternar vista lista / grilla */}
+        <div className="flex flex-shrink-0 rounded-xl bg-white/10 p-0.5" role="group" aria-label="Vista de eventos">
+          {[
+            { key: "lista",  label: "Vista de lista",  d: "M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" },
+            { key: "grilla", label: "Vista de galería", d: "M3.75 3.75h6.5v6.5h-6.5zM13.75 3.75h6.5v6.5h-6.5zM3.75 13.75h6.5v6.5h-6.5zM13.75 13.75h6.5v6.5h-6.5z" },
+          ].map(({ key, label, d }) => (
+            <button
+              key={key}
+              onClick={() => cambiarVista(key)}
+              aria-label={label}
+              aria-pressed={vista === key}
+              className={`flex h-8 w-9 items-center justify-center rounded-lg transition ${
+                vista === key ? "bg-white text-slate-700 shadow-sm" : "text-white/60 hover:text-white"
+              }`}
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d={d} />
+              </svg>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Filtro categorías */}
@@ -626,7 +660,7 @@ export default function Eventos() {
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">
               Próximos eventos
             </p>
-            <div className="flex flex-col gap-3">
+            <div className={vista === "grilla" ? "grid grid-cols-2 gap-3 items-start" : "flex flex-col gap-3"}>
               {proximos.map(ev => (
                 <EventoCard
                   key={ev.id}
@@ -634,6 +668,7 @@ export default function Eventos() {
                   confirmado={!!asistencias[ev.id]}
                   confirmando={confirmando === ev.id}
                   onVerMas={setEventoSel}
+                  compacto={vista === "grilla"}
                 />
               ))}
             </div>
@@ -646,7 +681,7 @@ export default function Eventos() {
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">
               Eventos pasados
             </p>
-            <div className="flex flex-col gap-3">
+            <div className={vista === "grilla" ? "grid grid-cols-2 gap-3 items-start" : "flex flex-col gap-3"}>
               {pasados.map(ev => (
                 <EventoCard
                   key={ev.id}
@@ -654,6 +689,7 @@ export default function Eventos() {
                   confirmado={!!asistencias[ev.id]}
                   confirmando={confirmando === ev.id}
                   onVerMas={setEventoSel}
+                  compacto={vista === "grilla"}
                 />
               ))}
             </div>

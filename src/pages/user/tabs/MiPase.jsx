@@ -37,13 +37,19 @@ export default function MiPase({ onLogout }) {
 
       {/* QR Card */}
       <div className="w-full rounded-3xl bg-white p-6 shadow-sm flex flex-col items-center gap-3">
-        <div className="rounded-2xl bg-white p-2 shadow-inner border border-slate-100">
+        {/* Fondo blanco y color-scheme claro fijos: el modo oscuro del dispositivo
+            no debe alterar el QR, porque los escáneres no lo leen sobre fondo oscuro */}
+        <div
+          className="rounded-2xl p-3 shadow-inner border border-slate-100"
+          style={{ background: "#ffffff", colorScheme: "light" }}
+        >
           <QRCodeSVG
             value={profile?.uid ?? "sin-uid"}
             size={200}
             level="H"
-            includeMargin={false}
-            fgColor="#0f4c81"
+            marginSize={0}
+            bgColor="#ffffff"
+            fgColor="#000000"
           />
         </div>
         <p className="text-xs text-slate-400">Muestra este código en recepción</p>

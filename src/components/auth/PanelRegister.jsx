@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import Field from "./Field";
+import FechaNacimientoInput from "../shared/FechaNacimientoInput";
 import PrimaryButton from "./PrimaryButton";
 import { Ic } from "../../constants/authIcons";
 import { useEstacas } from "../../hooks/useEstacas";
@@ -120,10 +121,12 @@ export default function PanelRegister({
               <label className="block text-[11px] font-semibold uppercase tracking-wide text-[rgba(240,244,248,0.40)]">
                 F. de nacimiento
               </label>
-              <input
-                type="date" value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                className="mt-2 w-full bg-transparent text-sm text-[#f0f4f8] outline-none"
+              <FechaNacimientoInput
+                value={birthDate}
+                onChange={setBirthDate}
+                wrapperClass="mt-2"
+                inputClass="w-full bg-transparent text-sm text-[#f0f4f8] placeholder:text-[rgba(240,244,248,0.30)] outline-none"
+                iconClass="text-[#f0f4f8]"
               />
             </div>
             <div

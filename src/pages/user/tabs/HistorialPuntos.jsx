@@ -3,6 +3,7 @@ import { db } from "../../../firebase/firebaseConfig";
 import {
   collection, query, orderBy, limit, startAfter, getDocs,
 } from "firebase/firestore";
+import { obtenerDescripcion } from "../../../services/puntosService";
 
 const PAGE_SIZE = 10;
 
@@ -101,15 +102,21 @@ export default function HistorialPuntos({ uid, puntos }) {
               return (
                 <div
                   key={e.id}
-                  className={`flex items-center gap-3 px-4 py-3.5 ${i < entradas.length - 1 ? "border-b border-slate-50" : ""}`}
+                  className={`flex items-start gap-3 px-4 py-3.5${i < entradas.length - 1 ? "border-b border-slate-50" : ""}`}
                 >
                   <div className={`flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-xl text-xl ${meta.bg}`}>
                     {meta.emoji}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 leading-snug truncate">
-                      {e.descripcion ?? e.tipo}
+                    {/* Primero el nombre del evento; el tipo de actividad va en segundo plano */}
+                    <p className="text-sm font-semibold text-slate-800 leading-snug break-words">
+                      {e.eventoTitulo ?? e.descripcion ?? e.tipo}
                     </p>
+                    {e.eventoTitulo && (
+                      <p className="text-xs font-medium text-slate-500 mt-0.5 break-words">
+                        {obtenerDescripcion(e.tipo)}
+                      </p>
+                    )}
                     <p className="text-[11px] text-slate-400 mt-0.5">
                       {formatFecha(e.fecha)}
                       {e.rolOtorgante && (
