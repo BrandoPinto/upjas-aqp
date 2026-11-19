@@ -63,7 +63,7 @@ export default function PortalSwitcher() {
         onClick={() => setAbierto(true)}
         aria-haspopup="dialog"
         aria-label={`Portal actual: ${actual.label}. Cambiar de portal`}
-        className="flex items-center gap-1.5 rounded-xl bg-white/15 px-3 py-2 text-xs font-semibold text-white backdrop-blur-sm transition hover:bg-white/25 active:scale-95"
+        className="flex min-h-[44px] items-center gap-1.5 rounded-xl bg-white/15 px-3.5 py-2 text-xs font-semibold text-white backdrop-blur-sm transition hover:bg-white/25 active:scale-95"
       >
         <span className="h-2 w-2 shrink-0 rounded-full ring-2 ring-white/40" style={{ background: actual.color }} />
         <span className="hidden min-[440px]:inline">{actual.label}</span>
@@ -85,7 +85,7 @@ export default function PortalSwitcher() {
             role="dialog"
             aria-modal="true"
             aria-label="Cambiar de portal"
-            className="portal-hoja relative w-full rounded-t-3xl bg-white px-4 pb-6 pt-3 shadow-2xl sm:w-80 sm:rounded-2xl sm:pb-4"
+            className="portal-hoja relative w-full rounded-t-3xl bg-white px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-3 shadow-2xl sm:w-80 sm:rounded-2xl sm:pb-4"
           >
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-200 sm:hidden" />
 

@@ -58,7 +58,7 @@ export default function HomePage() {
 
       {/* Header fijo */}
       <div
-        className="sticky top-0 z-20 px-4 pt-5 pb-4"
+        className="sticky top-0 z-20 px-4 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-4"
         style={{
           background: "linear-gradient(135deg, #1a4270, #2d69a3)",
         }}
@@ -88,7 +88,7 @@ export default function HomePage() {
       </div>
 
       {/* Contenido de tabs */}
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-[calc(6rem+env(safe-area-inset-bottom))]">
         <div className="mx-auto max-w-md">
           <ErrorBoundary resetKey={activeTab}>
             {activeTab === "pase"      && <MiPase onLogout={handleLogout} />}
@@ -101,7 +101,7 @@ export default function HomePage() {
 
       {/* Bottom Nav */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-20"
+        className="fixed bottom-0 left-0 right-0 z-20 pb-[env(safe-area-inset-bottom)]"
         style={{
           background: "var(--bg-surface)",
           borderTop: "1px solid var(--border-default)",

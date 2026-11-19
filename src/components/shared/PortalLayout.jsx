@@ -19,7 +19,7 @@ export default function PortalLayout({
   return (
     <div className="flex min-h-screen flex-col bg-slate-100">
 
-      <div className="sticky top-0 z-20 px-4 pt-5 pb-4" style={{ background: gradient }}>
+      <div className="sticky top-0 z-20 px-4 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-4" style={{ background: gradient }}>
         <div className="mx-auto flex max-w-md items-center justify-between gap-3">
           <div className="min-w-0">
             <p className={`text-xs font-semibold uppercase tracking-widest ${subtitleColor}`}>
@@ -41,13 +41,13 @@ export default function PortalLayout({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-[calc(6rem+env(safe-area-inset-bottom))]">
         <div className="mx-auto max-w-md">
           <ErrorBoundary resetKey={activeTab}>{children}</ErrorBoundary>
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 bg-white">
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex max-w-md">
           {tabs.map((tab) => {
             const active = activeTab === tab.key;
